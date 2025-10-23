@@ -1,0 +1,254 @@
+﻿@model IEnumerable<CoffeeShopSimulation.Models.Ingredient>
+@{
+    ViewData["Title"] = "Build Your Dream Drink";
+}
+
+<script>
+    // --- DRAG-AND-DROP AND API LOGIC ---
+
+    // Array to hold the final recipe (Ingredient objects)
+    let currentRecipe = [];
+    
+    // Total cost display element
+    let totalCostElement;
+    let loyaltyPointsElement;
+
+    window.onload = function() {
+        totalCostElement = document.getElementById('total-cost');
+        loyaltyPointsElement = document.getElementById('loyalty-points');
+        
+        // Setup Drag and Drop Listeners
+        const cup = document.getElementById('coffee-cup');
+        const draggables = document.querySelectorAll('.draggable-ingredient');
+
+        // 1. Make the drop zone accept elements (prevent default browser behavior)
+        cup.addEventListener('dragover', (e) => {
+            e.preventDefault(); 
+            cup.classList.add('ring-4', 'ring-green-400');
+        });
+        cup.addEventListener('dragleave', () => {
+            cup.classList.remove('ring-4', 'ring-green-400');
+        });
+
+        // 2. Handle the drop action
+        cup.addEventListener('drop', (e) => {
+            e.preventDefault();
+            cup.classList.remove('ring-4', 'ring-green-400');
+
+            // Retrieve the JSON data from the drag operation
+            const ingredientData = e.dataTransfer.getData("application/json");
+            const ingredient = JSON.parse(ingredientData);
+
+            if (ingredient) {
+                // Add ingredient to the recipe array
+                currentRecipe.push(ingredient);
+                updateRecipeDisplay(ingredient);
+                updateTotalCost();
+            }
+        });
+
+        // 3. Set the data when drag starts
+        draggables.forEach(draggable => {
+            draggable.addEventListener('dragstart', (e) => {
+                // Parse the ingredient data from the data attribute
+                const data = JSON.parse(draggable.dataset.ingredient);
+                
+                // Store the ingredient object as JSON string for transfer
+                e.dataTransfer.setData("application/json", JSON.stringify(data));
+                e.dataTransfer.effectAllowed = "copy";
+            });
+        });
+
+        // 4. Handle Order Submission
+        document.getElementById('submit-order-btn').addEventListener('click', submitOrder);
+    }
+    
+    // Updates the visual list of ingredients in the cup zone
+    function updateRecipeDisplay(ingredient) {
+        const recipeList = document.getElementById('recipe-list');
+        const listItem = document.createElement('li');
+        listItem.className = 'text-sm text-gray-700 bg-gray-100 p-2 rounded-lg mb-1 flex justify-between items-center';
+        listItem.innerHTML = `
+            <span>${ingredient.name}</span>
+            <span class="font-semibold text-green-600">$${ingredient.price.toFixed(2)}</span>
+        `;
+        recipeList.appendChild(listItem);
+    }
+
+    // Updates the running total display
+    function updateTotalCost() {
+        // Sums the price of all items in the currentRecipe array
+        const total = currentRecipe.reduce((sum, item) => sum + item.price, 0);
+        totalCostElement.textContent = `Total: $${total.toFixed(2)}`;
+    }
+
+    // Sends the final recipe to the C# API Controller
+    async function submitOrder() {
+        if (currentRecipe.length === 0) {
+            displayMessage("Please drag some ingredients into the cup first!", 'error');
+            return;
+        }
+
+        const submitBtn = document.getElementById('submit-order-btn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Processing...';
+
+        try {
+            // Sends the currentRecipe array (as JSON) to the C# API
+            const response = await fetch('/api/coffee/saveorder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(currentRecipe)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                // Success: Display results
+                displayMessage('Order placed! ' + (result.message || 'Points updated.'), 'success');
+                loyaltyPointsElement.textContent = `Points: ${result.newPoints}`;
+                
+                // Clear the cup for a new order
+                currentRecipe = [];
+                document.getElementById('recipe-list').innerHTML = '';
+                updateTotalCost();
+            } else if (response.status === 401) {
+                // Unauthorized: User not logged in (handled by C# ApiController)
+                displayMessage('You must be logged in to track points and place an order.', 'error');
+            } else {
+                // Other API error
+                displayMessage('Order failed: ' + (result.message || 'Unknown error'), 'error');
+            }
+        } catch (error) {
+                console.error('Submit error:', error);
+                displayMessage('A network error occurred.', 'error');
+            } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Order';
+        }
+    }
+
+    // Simple message display utility (replaces alert())
+    function displayMessage(message, type) {
+        const msgBox = document.getElementById('message-box');
+        msgBox.textContent = message;
+        msgBox.classList.remove('hidden', 'bg-red-100', 'bg-green-100', 'text-red-700', 'text-green-700');
+        msgBox.classList.add(
+            type === 'success' ? 'bg-green-100' : 'bg-red-100', 
+            type === 'success' ? 'text-green-700' : 'text-red-700', 
+            'p-4', 'mb-4', 'border', 'border-opacity-50'
+        );
+        setTimeout(() => msgBox.classList.add('hidden'), 5000);
+    }
+
+</script>
+
+<div class="container mx-auto px-4 py-8 lg:p-12">
+    <h1 class="text-4xl font-extrabold text-[#6F4E37] mb-8 text-center border-b-2 pb-2">
+        Craft Your Coffee: Drag & Drop
+    </h1>
+
+    <!-- Message Box (Success/Error Messages) -->
+    <div id="message-box" class="hidden rounded-lg transition duration-500 max-w-lg mx-auto text-center font-medium"></div>
+
+    <div class="flex flex-col lg:flex-row gap-10">
+
+        <!-- Left Column: Ingredients Menu -->
+        <div class="lg:w-1/3 p-6 bg-white rounded-xl shadow-2xl h-fit sticky top-20">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">Available Ingredients</h2>
+            
+            <div class="space-y-6">
+                
+                <!-- Base Ingredients -->
+                <div>
+                    <h3 class="text-lg font-semibold text-[#A67B5B] mb-3">Base / Shots</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-3 bg-red-50 hover:bg-red-100 rounded-xl shadow cursor-grab draggable-ingredient text-center transition duration-200" draggable="true" 
+                             data-ingredient='{"name":"Espresso Shot", "type":"Base", "price":2.00}'>
+                            <span class="text-2xl">☕</span><br><span class="text-sm font-medium">Shot ($2.00)</span>
+                        </div>
+                        <div class="p-3 bg-red-50 hover:bg-red-100 rounded-xl shadow cursor-grab draggable-ingredient text-center transition duration-200" draggable="true" 
+                             data-ingredient='{"name":"Extra Shot", "type":"Base", "price":1.00}'>
+                            <span class="text-2xl">➕</span><br><span class="text-sm font-medium">Extra Shot ($1.00)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Milk Ingredients -->
+                <div>
+                    <h3 class="text-lg font-semibold text-[#A67B5B] mb-3">Milk / Cream</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-3 bg-blue-50 hover:bg-blue-100 rounded-xl shadow cursor-grab draggable-ingredient text-center transition duration-200" draggable="true" 
+                             data-ingredient='{"name":"Whole Milk", "type":"Milk", "price":0.50}'>
+                            <span class="text-2xl">🥛</span><br><span class="text-sm font-medium">Whole Milk ($0.50)</span>
+                        </div>
+                        <div class="p-3 bg-blue-50 hover:bg-blue-100 rounded-xl shadow cursor-grab draggable-ingredient text-center transition duration-200" draggable="true" 
+                             data-ingredient='{"name":"Oat Milk", "type":"Milk", "price":1.50}'>
+                            <span class="text-2xl">🌾</span><br><span class="text-sm font-medium">Oat Milk ($1.50)</span>
+                        </div>
+                        <div class="p-3 bg-blue-50 hover:bg-blue-100 rounded-xl shadow cursor-grab draggable-ingredient text-center transition duration-200" draggable="true" 
+                             data-ingredient='{"name":"Light Cream", "type":"Milk", "price":0.75}'>
+                            <span class="text-2xl">🍶</span><br><span class="text-sm font-medium">Cream ($0.75)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flavors and Toppings -->
+                <div>
+                    <h3 class="text-lg font-semibold text-[#A67B5B] mb-3">Flavors / Toppings</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-3 bg-yellow-50 hover:bg-yellow-100 rounded-xl shadow cursor-grab draggable-ingredient text-center transition duration-200" draggable="true" 
+                             data-ingredient='{"name":"Caramel Syrup", "type":"Flavor", "price":0.50}'>
+                            <span class="text-2xl">🍯</span><br><span class="text-sm font-medium">Caramel ($0.50)</span>
+                        </div>
+                        <div class="p-3 bg-yellow-50 hover:bg-yellow-100 rounded-xl shadow cursor-grab draggable-ingredient text-center transition duration-200" draggable="true" 
+                             data-ingredient='{"name":"Vanilla Syrup", "type":"Flavor", "price":0.50}'>
+                            <span class="text-2xl">🍦</span><br><span class="text-sm font-medium">Vanilla ($0.50)</span>
+                        </div>
+                        <div class="p-3 bg-yellow-50 hover:bg-yellow-100 rounded-xl shadow cursor-grab draggable-ingredient text-center transition duration-200" draggable="true" 
+                             data-ingredient='{"name":"Whipped Cream", "type":"Topping", "price":0.25}'>
+                            <span class="text-2xl">☁️</span><br><span class="text-sm font-medium">Whip ($0.25)</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Right Column: Drop Zone and Order Summary -->
+        <div class="lg:w-2/3 p-6 bg-white rounded-xl shadow-2xl flex flex-col items-center">
+            
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Your Coffee Creation</h2>
+            
+            <!-- Coffee Cup Drop Zone -->
+            <div id="coffee-cup" class="w-64 h-64 bg-gray-50 border-4 border-dashed border-gray-300 rounded-xl flex flex-col justify-center items-center text-gray-400 p-4 transition duration-300 shadow-inner hover:border-green-400">
+                <span class="text-6xl mb-2">☕</span> 
+                <p>Drag ingredients here!</p>
+            </div>
+            
+            <!-- Recipe List -->
+            <div class="w-full max-w-sm mt-8 p-4 bg-gray-50 rounded-xl shadow-inner">
+                <h3 class="font-bold text-gray-700 mb-2">Current Recipe:</h3>
+                <ul id="recipe-list" class="space-y-1 min-h-[40px]">
+                    <!-- Ingredients will be appended here by JavaScript -->
+                </ul>
+                <div id="total-cost" class="text-xl font-extrabold text-[#6F4E37] mt-3 pt-2 border-t-2 border-gray-200">
+                    Total: $0.00
+                </div>
+            </div>
+
+            <!-- Order Button and Loyalty Status -->
+            <button id="submit-order-btn" class="mt-6 w-full max-w-sm bg-[#6F4E37] hover:bg-[#A67B5B] text-white font-bold py-3 px-4 rounded-xl transition duration-300 shadow-md">
+                Submit Order
+            </button>
+
+            <div class="mt-4 text-center text-sm font-medium text-gray-600">
+                <p>Status: Log in to track loyalty points!</p>
+                <p id="loyalty-points" class="text-lg font-bold text-green-700 mt-2">Points: 0</p>
+            </div>
+
+        </div>
+    </div>
+</div>

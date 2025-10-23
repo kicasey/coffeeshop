@@ -1,0 +1,7 @@
+/* _content/CoffeeShopSimulation/Views/Shared/_Layout.cshtml.rz.scp.css */
+/* Custom Font Setup */
+@@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+body[b-hrf2ik8yx2] {
+    font-family: 'Inter', sans-serif;
+    background-color: #f7f3f0; /* Light parchment color */
+}

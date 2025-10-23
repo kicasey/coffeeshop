@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Coffee Shop Simulation</title>
+    
+    <!-- Load Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom Font Setup */
+        @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f3f0; /* Light parchment color */
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Header/Navigation Bar -->
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+            <!-- Home Link with Cache Buster -->
+            <a class="text-2xl font-bold text-[#6F4E37] hover:text-[#A67B5B] transition duration-300" asp-area="" asp-controller="Home" asp-action="Index" asp-route-v="2">
+                The Cozy Bean ☕
+            </a>
+            <div>
+                <!-- Order Link with Cache Buster -->
+                <a class="text-gray-700 hover:text-[#A67B5B] font-semibold transition duration-300 mr-4" asp-area="" asp-controller="Home" asp-action="Index" asp-route-v="2">Order</a>
+                <!-- This links to the Identity UI pages (Register/Login) -->
+                <partial name="_LoginPartial" /> 
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content Area -->
+    <main role="main" class="flex-grow pb-3">
+        @RenderBody()
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full border-t border-gray-200 py-4 mt-auto bg-white">
+        <div class="container mx-auto px-4 text-center text-sm text-gray-500">
+            &copy; @DateTime.Now.Year - Coffee Shop Simulation. Built with C# & .NET.
+        </div>
+    </footer>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
