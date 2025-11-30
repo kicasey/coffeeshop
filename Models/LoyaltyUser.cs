@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace CoffeeShopSimulation.Models
 {
-    // Extends IdentityUser to add custom properties for the loyalty program.
     public class LoyaltyUser : IdentityUser
     {
-        // --- Private Fields ---
+        // --- Private Fields (moneySpent changed to string) ---
         private int loyaltyPoints;
-        private decimal moneySpent;
+        private string moneySpent; // <--- CHANGED TO STRING
         private string firstName;
         private string lastName;
 
@@ -21,15 +20,14 @@ namespace CoffeeShopSimulation.Models
         // --- Constructors ---
         public LoyaltyUser()
         {
-            // Initialize custom fields
             this.loyaltyPoints = 0;
-            this.moneySpent = 0.00m;
+            this.moneySpent = "0.00"; // <--- Initialized as a string
             this.firstName = string.Empty;
             this.lastName = string.Empty;
             this.drinkOrders = new List<DrinkOrder>();
         }
 
-        // --- Public Properties (Explicit Getters/Setters) ---
+        // --- Public Properties ---
 
         public int LoyaltyPoints
         {
@@ -37,10 +35,25 @@ namespace CoffeeShopSimulation.Models
             set { loyaltyPoints = value; }
         }
 
-        public decimal MoneySpent
+        // This property remains a string to map correctly to the database's TEXT column
+        public string MoneySpent
         {
             get { return moneySpent; }
             set { moneySpent = value; }
+        }
+
+        // *** NEW HELPER PROPERTY FOR CALCULATIONS ***
+        // Safely converts the stored string to a decimal for arithmetic operations
+        public decimal CurrentMoneySpentAsDecimal 
+        {
+            get 
+            { 
+                if (decimal.TryParse(this.moneySpent, out decimal result))
+                {
+                    return result;
+                }
+                return 0.00m;
+            }
         }
 
         public string FirstName
@@ -55,39 +68,26 @@ namespace CoffeeShopSimulation.Models
             set { lastName = value; }
         }
 
-        // Navigation Property: Allows C# code to easily access the user's order history.
         public List<DrinkOrder> DrinkOrders
         {
             get { return drinkOrders; }
             set { drinkOrders = value; }
         }
 
-        // --- Custom Business Logic ---
-
-        /// <summary>
-        /// Calculates new loyalty points earned based on the order total.
-        /// Rule: 1 point for every $5 spent.
-        /// </summary>
-        /// <param name="orderTotal">The total cost of the latest order.</param>
+        // --- Custom Business Logic (Updated to use CurrentMoneySpentAsDecimal) ---
         public void CalculateNewPoints(decimal orderTotal)
         {
-            // 1. Update the total money spent
-            this.MoneySpent += orderTotal;
-
-            // 2. Calculate newly earned points
-            int initialPoints = this.LoyaltyPoints;
+            // 1. Calculate and update total money spent
+            decimal newTotalSpent = CurrentMoneySpentAsDecimal + orderTotal;
             
-            // Calculate how many times $5 has been spent in total
-            int totalPossiblePoints = (int)Math.Floor(this.MoneySpent / 5.00m);
-            
-            // Determine how many new points were earned
-            int pointsEarned = totalPossiblePoints - initialPoints;
+            // 2. Save the total spent back as a formatted string ("F2" ensures two decimal places)
+            this.MoneySpent = newTotalSpent.ToString("F2"); 
 
-            // 3. Update Loyalty Points
-            if (pointsEarned > 0)
-            {
-                this.LoyaltyPoints = totalPossiblePoints;
-            }
+            // 3. Calculate newly earned points (Rule: 1 point for every $5 spent cumulatively)
+            int totalPossiblePoints = (int)Math.Floor(newTotalSpent / 5.00m);
+            
+            // 4. Update Loyalty Points
+            this.LoyaltyPoints = totalPossiblePoints;
         }
     }
 }

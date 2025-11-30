@@ -9,24 +9,28 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Custom Font Setup */
-        @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        @@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f7f3f0; /* Light parchment color */
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #FFE5D9 0%, #FFCAD4 50%, #F4ACB7 100%);
+            min-height: 100vh;
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
     <!-- Header/Navigation Bar -->
-    <header class="bg-white shadow-lg sticky top-0 z-50">
+    <header class="bg-white/90 backdrop-blur-sm shadow-lg sticky top-0 z-50">
         <nav class="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
-            <!-- Home Link with Cache Buster -->
-            <a class="text-2xl font-bold text-[#6F4E37] hover:text-[#A67B5B] transition duration-300" asp-area="" asp-controller="Home" asp-action="Index" asp-route-v="2">
-                The Cozy Bean ☕
+            <!-- Home Link -->
+            <a class="text-2xl font-bold transition duration-300 flex items-center gap-2" style="background: linear-gradient(135deg, #FF6B6B, #FF8E8E); -webkit-background-clip: text; -webkit-text-fill-color: transparent;" asp-area="" asp-controller="Home" asp-action="Index">
+                <svg width="30" height="30" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="fill: #FF6B6B;">
+                    <path d="M30 20 L30 70 Q30 75 35 75 L65 75 Q70 75 70 70 L70 20 Z" fill="currentColor" stroke="#6B3410" stroke-width="2"/>
+                    <path d="M70 25 L75 25 L80 40 Q80 45 75 45 L70 45" fill="none" stroke="#6B3410" stroke-width="3" stroke-linecap="round"/>
+                    <circle cx="50" cy="45" r="12" fill="#4A2C2A"/>
+                </svg>
+                <span id="header-shop-name">Katelyn C(offee)</span>
             </a>
-            <div>
-                <!-- Order Link with Cache Buster -->
-                <a class="text-gray-700 hover:text-[#A67B5B] font-semibold transition duration-300 mr-4" asp-area="" asp-controller="Home" asp-action="Index" asp-route-v="2">Order</a>
+            <div class="flex items-center gap-4">
                 <!-- This links to the Identity UI pages (Register/Login) -->
                 <partial name="_LoginPartial" /> 
             </div>
@@ -45,6 +49,8 @@
         </div>
     </footer>
     
+    <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js?v=4" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

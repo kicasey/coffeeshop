@@ -38,6 +38,20 @@ namespace CoffeeShopSimulation.Data
         {
             // This is required to make the IdentityDbContext work properly.
             base.OnModelCreating(builder);
+
+            // Configure the relationship between DrinkOrder and Ingredient
+            builder.Entity<Ingredient>()
+                .HasOne(i => i.DrinkOrder)
+                .WithMany(o => o.Ingredients)
+                .HasForeignKey(i => i.DrinkOrderId)
+                .OnDelete(DeleteBehavior.Cascade); // If order is deleted, ingredients are deleted too
+
+            // Configure the relationship between LoyaltyUser and DrinkOrder
+            builder.Entity<DrinkOrder>()
+                .HasOne<LoyaltyUser>()
+                .WithMany(u => u.DrinkOrders)
+                .HasForeignKey(o => o.UserId)
+                .OnDelete(DeleteBehavior.Cascade); // If user is deleted, orders are deleted too
         }
     }
 }

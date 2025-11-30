@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using CoffeeShopSimulation.Data;
 using CoffeeShopSimulation.Models;
@@ -20,6 +21,9 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 // Configure Identity System (Login/Register/User Management)
 builder.Services.AddDefaultIdentity<LoyaltyUser>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddEntityFrameworkStores<DatabaseContext>();
+
+// Add a no-op email sender (required by Identity but not used since email confirmation is disabled)
+builder.Services.AddTransient<IEmailSender, NoOpEmailSender>();
 
 // Add MVC Controllers and Views
 builder.Services.AddControllersWithViews();
@@ -63,9 +67,22 @@ app.UseAuthorization();
 // Map the default login/register pages built into Identity
 app.MapRazorPages(); 
 
+// Map API controllers
+app.MapControllers();
+
 // Map the controllers for your custom web pages (Home, API, etc.)
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+// No-op email sender implementation (required by Identity but not used)
+public class NoOpEmailSender : IEmailSender
+{
+    public Task SendEmailAsync(string email, string subject, string htmlMessage)
+    {
+        // Do nothing - email confirmation is disabled
+        return Task.CompletedTask;
+    }
+}

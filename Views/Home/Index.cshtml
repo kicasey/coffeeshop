@@ -1,15 +1,359 @@
-﻿@model IEnumerable<CoffeeShopSimulation.Models.Ingredient>
-@{
+﻿@{
     ViewData["Title"] = "Build Your Dream Drink";
 }
 
-<script>
-    // --- DRAG-AND-DROP AND API LOGIC ---
-
-    // Array to hold the final recipe (Ingredient objects)
-    let currentRecipe = [];
+<style>
+    /* Cute Game-like Styling */
+    @@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
     
-    // Total cost display element
+    body {
+        font-family: 'Nunito', sans-serif;
+        background: linear-gradient(135deg, #FFE5D9 0%, #FFCAD4 50%, #F4ACB7 100%);
+        min-height: 100vh;
+    }
+    
+    .cup-container {
+        width: 220px;
+        height: 320px;
+        position: relative;
+        margin: 0 auto;
+        filter: drop-shadow(0 15px 30px rgba(0,0,0,0.3));
+    }
+    
+    /* Clear plastic cup with 3D effect */
+    .cup {
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 0 0 25px 25px;
+        position: relative;
+        overflow: hidden;
+        border: 4px solid rgba(255, 255, 255, 0.9);
+        border-top: 6px solid rgba(255, 255, 255, 0.95);
+        box-shadow: 
+            inset 0 0 20px rgba(0,0,0,0.1),
+            0 0 0 2px rgba(200,200,200,0.3),
+            0 8px 16px rgba(0,0,0,0.2);
+        backdrop-filter: blur(1px);
+    }
+    
+    /* Cup logo - SVG icon */
+    .cup-logo {
+        position: absolute;
+        left: 50%;
+        top: 10%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 40px;
+        z-index: 15;
+        opacity: 0.85;
+        pointer-events: none;
+        filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+    }
+    
+    .cup-logo svg {
+        width: 100%;
+        height: 100%;
+    }
+    
+    /* Liquid layers container */
+    .cup-layers {
+        position: absolute;
+        bottom: 0;
+        left: 2px;
+        right: 2px;
+        top: 2px;
+        display: flex;
+        flex-direction: column-reverse;
+        border-radius: 0 0 20px 20px;
+        overflow: hidden;
+    }
+    
+    .cup-layer {
+        width: 100%;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: visible;
+        min-height: 8px;
+    }
+    
+    /* Ice cubes - rendered separately, not as layers - EVEN BIGGER */
+    .ice-cube {
+        position: absolute;
+        width: 24px;
+        height: 24px;
+        background: rgba(255, 255, 255, 0.95);
+        border: 2px solid rgba(200, 230, 255, 0.8);
+        border-radius: 4px;
+        box-shadow: 
+            inset -4px -4px 8px rgba(0,0,0,0.2),
+            0 3px 6px rgba(0,0,0,0.3),
+            0 0 0 1px rgba(255,255,255,0.6);
+        animation: float 3s ease-in-out infinite;
+        z-index: 5;
+    }
+    
+    .ice-cube::before {
+        content: '';
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        width: 8px;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 2px;
+        box-shadow: 4px 4px 0 rgba(255,255,255,0.9);
+    }
+    
+    .ice-cube::after {
+        content: '';
+        position: absolute;
+        bottom: 3px;
+        right: 3px;
+        width: 6px;
+        height: 6px;
+        background: rgba(200, 230, 255, 0.7);
+        border-radius: 1px;
+    }
+    
+    @@keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-3px) rotate(2deg); }
+    }
+    
+    /* Whipped cream on top */
+    .whipped-cream {
+        position: absolute;
+        top: -15px;
+        left: 10%;
+        right: 10%;
+        height: 40px;
+        background: linear-gradient(to bottom, #FFFFFF 0%, #F8F8F8 100%);
+        border-radius: 50% 50% 30% 30%;
+        box-shadow: 
+            inset 0 -5px 10px rgba(0,0,0,0.1),
+            0 5px 10px rgba(0,0,0,0.2);
+        z-index: 20;
+        clip-path: ellipse(80% 60% at 50% 50%);
+    }
+    
+    .whipped-cream::before {
+        content: '';
+        position: absolute;
+        top: 5px;
+        left: 20%;
+        width: 15px;
+        height: 20px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        box-shadow: 
+            25px 0 0 rgba(255, 255, 255, 0.8),
+            50px 5px 0 rgba(255, 255, 255, 0.7),
+            10px 15px 0 rgba(255, 255, 255, 0.6);
+    }
+    
+    /* Sprinkles */
+    .sprinkle {
+        position: absolute;
+        width: 3px;
+        height: 8px;
+        border-radius: 1px;
+        z-index: 25;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+    
+    /* Syrup swirl effects */
+    .syrup-swirl {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 10px,
+            rgba(255,255,255,0.1) 10px,
+            rgba(255,255,255,0.1) 20px
+        );
+        opacity: 0.3;
+        pointer-events: none;
+    }
+    
+    .ingredient-card {
+        transition: all 0.2s ease;
+        cursor: grab;
+        border-radius: 15px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .ingredient-card:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+    
+    .ingredient-card:active {
+        cursor: grabbing;
+        transform: scale(0.95);
+    }
+    
+    .temperature-toggle {
+        background: white;
+        border-radius: 25px;
+        padding: 5px;
+        display: inline-flex;
+        gap: 5px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    
+    .temp-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 20px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: 'Nunito', sans-serif;
+    }
+    
+    .temp-btn.active {
+        background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+        color: white;
+        box-shadow: 0 4px 15px rgba(255,107,107,0.4);
+    }
+    
+    .temp-btn:not(.active) {
+        background: #E0E0E0;
+        color: #666;
+    }
+    
+    .delivery-option {
+        background: white;
+        border-radius: 15px;
+        padding: 15px;
+        margin: 10px 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 3px solid transparent;
+    }
+    
+    .delivery-option:hover {
+        border-color: #FF8E8E;
+        transform: scale(1.02);
+    }
+    
+    .delivery-option.selected {
+        border-color: #FF6B6B;
+        background: #FFF5F5;
+    }
+    
+    .size-option {
+        background: white;
+        border-radius: 15px;
+        padding: 12px;
+        margin: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 3px solid transparent;
+        text-align: center;
+        flex: 1;
+    }
+    
+    .size-option:hover {
+        border-color: #FF8E8E;
+        transform: scale(1.05);
+    }
+    
+    .size-option.selected {
+        border-color: #FF6B6B;
+        background: #FFF5F5;
+        font-weight: 700;
+    }
+    
+    .mix-toggle {
+        background: white;
+        border-radius: 15px;
+        padding: 15px;
+        margin: 10px 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 3px solid #FFCAD4;
+        text-align: center;
+        font-weight: 600;
+    }
+    
+    .mix-toggle:hover {
+        border-color: #FF8E8E;
+        background: #FFF5F5;
+    }
+    
+    .mix-toggle.active {
+        border-color: #FF6B6B;
+        background: linear-gradient(135deg, #FFF5F5, #FFE5D9);
+    }
+    
+    /* Blended/mixed style for layers - vertical swirl effect */
+    .cup-layer.mixed {
+        opacity: 0.92;
+    }
+    
+    /* Custom scrollbar for ingredients */
+    .overflow-y-auto::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .overflow-y-auto::-webkit-scrollbar-track {
+        background: rgba(255,255,255,0.5);
+        border-radius: 10px;
+    }
+    
+    .overflow-y-auto::-webkit-scrollbar-thumb {
+        background: #FF8E8E;
+        border-radius: 10px;
+    }
+    
+    .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+        background: #FF6B6B;
+    }
+</style>
+
+<script>
+    // --- DRAG-AND-DROP AND CUP VISUALIZATION LOGIC ---
+    let currentRecipe = [];
+    let isIced = false; // false = hot, true = iced
+    let deliveryOption = 'pickup'; // 'pickup', 'delivery'
+    let drinkSize = 'medium'; // 'small', 'medium', 'large'
+    let isMixed = false; // true = blended layers, false = layered
+    
+    // Ingredient color mappings with opacity for transparent cup
+    const ingredientColors = {
+        'Espresso Shot': 'rgba(74, 44, 42, 0.9)',
+        'Extra Shot': 'rgba(61, 31, 29, 0.9)',
+        'Whole Milk': 'rgba(255, 248, 220, 0.85)',
+        'Oat Milk': 'rgba(245, 222, 179, 0.85)',
+        'Macadamia Milk': 'rgba(255, 250, 240, 0.85)',
+        'Light Cream': 'rgba(255, 253, 208, 0.85)',
+        'Caramel Syrup': 'rgba(210, 105, 30, 0.8)',
+        'Vanilla Syrup': 'rgba(245, 245, 220, 0.75)',
+        'Strawberry Syrup': 'rgba(255, 105, 180, 0.85)',
+        'Chocolate Syrup': 'rgba(107, 68, 35, 0.85)',
+        'Pumpkin Spice Syrup': 'rgba(255, 140, 0, 0.85)',
+        'Matcha Syrup': 'rgba(152, 251, 152, 0.8)',
+        'Lavender Syrup': 'rgba(230, 230, 250, 0.8)',
+        'Whipped Cream': '#FFFFFF',
+        'Ice': 'transparent', // Ice is handled separately
+        'Cinnamon': 'rgba(210, 105, 30, 0.6)',
+        'Chocolate Chips': 'rgba(61, 31, 29, 0.9)',
+        'Sprinkles': 'transparent' // Sprinkles are handled separately
+    };
+    
+    // Ingredient layer heights (percentage)
+    const ingredientHeights = {
+        'Base': 25,
+        'Milk': 20,
+        'Flavor': 12,
+        'Topping': 8
+    };
+    
     let totalCostElement;
     let loyaltyPointsElement;
 
@@ -17,238 +361,761 @@
         totalCostElement = document.getElementById('total-cost');
         loyaltyPointsElement = document.getElementById('loyalty-points');
         
-        // Setup Drag and Drop Listeners
+        loadUserPoints();
+        setupDragAndDrop();
+        setupTemperatureToggle();
+        setupDeliveryOptions();
+        setupSizeOptions();
+        setupMixToggle();
+    }
+    
+    function setupTemperatureToggle() {
+        document.querySelectorAll('.temp-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.temp-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                isIced = this.dataset.temp === 'iced';
+                
+                // Add or remove ice based on temperature
+                if (isIced && !currentRecipe.some(i => i.name === 'Ice')) {
+                    // Auto-add ice for iced drinks
+                    const iceIndex = currentRecipe.findIndex(i => i.type === 'Base');
+                    if (iceIndex >= 0) {
+                        currentRecipe.splice(iceIndex + 1, 0, {
+                            name: 'Ice',
+                            type: 'Topping',
+                            price: 0,
+                            color: ingredientColors['Ice']
+                        });
+                    } else {
+                        currentRecipe.push({
+                            name: 'Ice',
+                            type: 'Topping',
+                            price: 0,
+                            color: ingredientColors['Ice']
+                        });
+                    }
+                } else if (!isIced) {
+                    // Remove ice for hot drinks
+                    currentRecipe = currentRecipe.filter(i => i.name !== 'Ice');
+                }
+                
+                // Update cup visual and recipe display
+                updateCupVisual();
+                updateRecipeDisplay();
+                updateTotalCost();
+            });
+        });
+    }
+    
+    function setupSizeOptions() {
+        document.querySelectorAll('.size-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.size-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                drinkSize = this.dataset.size;
+                updateTotalCost();
+                updateCupVisual(); // Update cup size if needed
+            });
+        });
+    }
+    
+    function setupMixToggle() {
+        const mixToggle = document.getElementById('mix-toggle');
+        if (mixToggle) {
+            mixToggle.addEventListener('click', function() {
+                isMixed = !isMixed;
+                this.classList.toggle('active');
+                this.textContent = isMixed ? '🔀 Mixed (On)' : '🔀 Mixed (Off)';
+                updateCupVisual(); // Update visual to show blending
+            });
+        }
+    }
+    
+    function setupDeliveryOptions() {
+        document.querySelectorAll('.delivery-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.delivery-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                deliveryOption = this.dataset.delivery;
+                updateTotalCost(); // Update total when delivery option changes
+            });
+        });
+    }
+    
+    function setupDragAndDrop() {
         const cup = document.getElementById('coffee-cup');
         const draggables = document.querySelectorAll('.draggable-ingredient');
 
-        // 1. Make the drop zone accept elements (prevent default browser behavior)
         cup.addEventListener('dragover', (e) => {
             e.preventDefault(); 
-            cup.classList.add('ring-4', 'ring-green-400');
+            cup.classList.add('ring-4', 'ring-pink-400');
         });
+        
         cup.addEventListener('dragleave', () => {
-            cup.classList.remove('ring-4', 'ring-green-400');
+            cup.classList.remove('ring-4', 'ring-pink-400');
         });
 
-        // 2. Handle the drop action
         cup.addEventListener('drop', (e) => {
             e.preventDefault();
-            cup.classList.remove('ring-4', 'ring-green-400');
+            cup.classList.remove('ring-4', 'ring-pink-400');
 
-            // Retrieve the JSON data from the drag operation
             const ingredientData = e.dataTransfer.getData("application/json");
             const ingredient = JSON.parse(ingredientData);
 
             if (ingredient) {
-                // Add ingredient to the recipe array
+                // Add ingredient to recipe (order matters!)
                 currentRecipe.push(ingredient);
-                updateRecipeDisplay(ingredient);
+                updateCupVisual();
+                updateRecipeDisplay();
                 updateTotalCost();
             }
         });
 
-        // 3. Set the data when drag starts
         draggables.forEach(draggable => {
             draggable.addEventListener('dragstart', (e) => {
-                // Parse the ingredient data from the data attribute
                 const data = JSON.parse(draggable.dataset.ingredient);
-                
-                // Store the ingredient object as JSON string for transfer
                 e.dataTransfer.setData("application/json", JSON.stringify(data));
                 e.dataTransfer.effectAllowed = "copy";
             });
         });
 
-        // 4. Handle Order Submission
         document.getElementById('submit-order-btn').addEventListener('click', submitOrder);
+        document.getElementById('clear-cup-btn').addEventListener('click', clearCup);
     }
     
-    // Updates the visual list of ingredients in the cup zone
-    function updateRecipeDisplay(ingredient) {
+    function updateCupVisual() {
+        const cupLayers = document.getElementById('cup-layers');
+        cupLayers.innerHTML = '';
+        
+        // Remove whipped cream and sprinkles from previous render
+        const existingWhipped = document.querySelectorAll('.whipped-cream');
+        const existingSprinkles = document.querySelectorAll('.sprinkle');
+        const existingIce = document.querySelectorAll('.ice-cube');
+        [...existingWhipped, ...existingSprinkles, ...existingIce].forEach(el => el.remove());
+        
+        if (currentRecipe.length === 0) {
+            const emptyLayer = document.createElement('div');
+            emptyLayer.className = 'cup-layer';
+            emptyLayer.style.height = '100%';
+            emptyLayer.style.display = 'flex';
+            emptyLayer.style.alignItems = 'center';
+            emptyLayer.style.justifyContent = 'center';
+            emptyLayer.innerHTML = '<span style="color: rgba(139, 115, 85, 0.4); font-size: 14px;">Empty Cup</span>';
+            cupLayers.appendChild(emptyLayer);
+            return;
+        }
+        
+        // Separate ingredients by type for better layering
+        const bases = currentRecipe.filter(i => i.type === 'Base');
+        const milks = currentRecipe.filter(i => i.type === 'Milk');
+        const flavors = currentRecipe.filter(i => i.type === 'Flavor');
+        const toppings = currentRecipe.filter(i => i.type === 'Topping' && i.name !== 'Ice' && i.name !== 'Whipped Cream' && i.name !== 'Sprinkles');
+        const hasIce = currentRecipe.some(i => i.name === 'Ice');
+        const hasWhippedCream = currentRecipe.some(i => i.name === 'Whipped Cream');
+        const hasSprinkles = currentRecipe.some(i => i.name === 'Sprinkles');
+        
+        let currentBottom = 0;
+        
+        // Render bases (coffee/espresso) at the bottom
+        bases.forEach(ingredient => {
+            const layer = createLayer(ingredient, ingredientHeights['Base'], currentBottom);
+            cupLayers.appendChild(layer);
+            currentBottom += ingredientHeights['Base'];
+        });
+        
+        // Render milks
+        milks.forEach(ingredient => {
+            const layer = createLayer(ingredient, ingredientHeights['Milk'], currentBottom);
+            cupLayers.appendChild(layer);
+            currentBottom += ingredientHeights['Milk'];
+        });
+        
+        // Render flavors (syrups) - swirl is added in createLayer
+        flavors.forEach(ingredient => {
+            const layer = createLayer(ingredient, ingredientHeights['Flavor'], currentBottom);
+            cupLayers.appendChild(layer);
+            currentBottom += ingredientHeights['Flavor'];
+        });
+        
+        // Render toppings (except ice, whipped cream, sprinkles)
+        toppings.forEach(ingredient => {
+            const layer = createLayer(ingredient, ingredientHeights['Topping'], currentBottom);
+            cupLayers.appendChild(layer);
+            currentBottom += ingredientHeights['Topping'];
+        });
+        
+        // Render ice cubes (floating in the drink)
+        if (hasIce) {
+            renderIceCubes(cupLayers, currentBottom);
+        }
+        
+        // Render whipped cream on top
+        if (hasWhippedCream) {
+            const whipped = document.createElement('div');
+            whipped.className = 'whipped-cream';
+            cupLayers.appendChild(whipped);
+        }
+        
+        // Render sprinkles on top of whipped cream
+        if (hasSprinkles) {
+            renderSprinkles(cupLayers, hasWhippedCream);
+        }
+    }
+    
+    function createLayer(ingredient, heightPercent, bottomPercent) {
+        const layer = document.createElement('div');
+        layer.className = 'cup-layer' + (isMixed ? ' mixed' : '');
+        layer.style.height = `${heightPercent}%`;
+        layer.style.bottom = `${bottomPercent}%`;
+        layer.style.position = 'absolute';
+        layer.style.width = '100%';
+        layer.style.left = '0';
+        
+        let color = ingredientColors[ingredient.name] || 'rgba(139, 115, 85, 0.7)';
+        
+        // Ensure strawberry syrup shows properly
+        if (ingredient.name === 'Strawberry Syrup') {
+            color = 'rgba(255, 105, 180, 0.9)';
+        }
+        
+        // Create gradient for depth and dimension
+        if (ingredient.type === 'Base') {
+            const lighter = color.replace('0.9', '0.75').replace('rgba', 'rgba');
+            if (isMixed) {
+                // Swirled/blended base - create vertical swirl pattern
+                layer.style.background = `repeating-linear-gradient(
+                    0deg,
+                    ${color} 0%,
+                    ${color} 20%,
+                    ${lighter} 40%,
+                    ${color} 60%,
+                    ${lighter} 80%,
+                    ${color} 100%
+                )`;
+            } else {
+                layer.style.background = `linear-gradient(to top, ${color} 0%, ${lighter} 100%)`;
+            }
+            layer.style.boxShadow = 'inset 0 5px 15px rgba(0,0,0,0.15)';
+        } else if (ingredient.type === 'Milk') {
+            const lighter = color.replace('0.85', '0.7').replace('rgba', 'rgba');
+            if (isMixed) {
+                // Swirled milk with vertical blending
+                layer.style.background = `repeating-linear-gradient(
+                    0deg,
+                    ${color} 0%,
+                    ${lighter} 25%,
+                    ${color} 50%,
+                    ${lighter} 75%,
+                    ${color} 100%
+                )`;
+            } else {
+                layer.style.background = `linear-gradient(to top, ${color} 0%, ${lighter} 100%)`;
+            }
+            layer.style.boxShadow = 'inset 0 3px 10px rgba(0,0,0,0.1)';
+        } else if (ingredient.type === 'Flavor') {
+            // Syrups with vibrant colors and swirl effects
+            let baseColor = color;
+            if (ingredient.name === 'Strawberry Syrup') {
+                baseColor = 'rgba(255, 105, 180, 0.9)';
+            } else if (ingredient.name === 'Caramel Syrup') {
+                baseColor = 'rgba(210, 105, 30, 0.85)';
+            }
+            
+            if (isMixed) {
+                // Create swirling vertical gradient pattern for syrups
+                const lighter = baseColor.replace(/0\.\d+/, '0.7');
+                const darker = baseColor.replace(/0\.\d+/, '0.95');
+                layer.style.background = `repeating-linear-gradient(
+                    0deg,
+                    ${baseColor} 0%,
+                    ${lighter} 15%,
+                    ${darker} 30%,
+                    ${baseColor} 45%,
+                    ${lighter} 60%,
+                    ${darker} 75%,
+                    ${baseColor} 90%,
+                    ${baseColor} 100%
+                )`;
+                layer.style.backgroundSize = '100% 200%';
+            } else {
+                layer.style.background = `linear-gradient(135deg, ${baseColor} 0%, ${baseColor} 30%, ${baseColor.replace(/0\.\d+/, '0.95')} 50%, ${baseColor} 70%, ${baseColor.replace(/0\.\d+/, '0.75')} 100%)`;
+                layer.style.boxShadow = 'inset 0 0 15px rgba(0,0,0,0.15)';
+                
+                // Add swirl overlay for syrups
+                const swirl = document.createElement('div');
+                swirl.className = 'syrup-swirl';
+                swirl.style.background = `repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 8px,
+                    rgba(255,255,255,0.15) 8px,
+                    rgba(255,255,255,0.15) 16px
+                )`;
+                layer.appendChild(swirl);
+            }
+        } else {
+            layer.style.background = color;
+        }
+        
+        // If mixed, add vertical blend transitions
+        if (isMixed && bottomPercent > 0) {
+            layer.style.maskImage = 'linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)';
+            layer.style.webkitMaskImage = 'linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)';
+        }
+        
+        return layer;
+    }
+    
+    function renderIceCubes(container, liquidHeight) {
+        // Calculate where ice should appear (in the liquid)
+        const iceAreaBottom = Math.max(10, liquidHeight - 40);
+        const iceAreaHeight = Math.min(50, liquidHeight);
+        
+        // Create 8-12 ice cubes randomly positioned - MORE cubes for better visual
+        const numCubes = 12;
+        for (let i = 0; i < numCubes; i++) {
+            const cube = document.createElement('div');
+            cube.className = 'ice-cube';
+            cube.style.left = `${8 + Math.random() * 84}%`;
+            cube.style.bottom = `${iceAreaBottom + Math.random() * iceAreaHeight}%`;
+            cube.style.animationDelay = `${Math.random() * 3}s`;
+            cube.style.transform = `rotate(${Math.random() * 360}deg) scale(${0.8 + Math.random() * 0.4})`;
+            container.appendChild(cube);
+        }
+    }
+    
+    function renderSprinkles(container, onWhippedCream) {
+        const sprinkleColors = ['#FF69B4', '#FFD700', '#87CEEB', '#98FB98', '#FF6347', '#9370DB'];
+        const numSprinkles = 15;
+        const topPosition = onWhippedCream ? -5 : 5;
+        
+        for (let i = 0; i < numSprinkles; i++) {
+            const sprinkle = document.createElement('div');
+            sprinkle.className = 'sprinkle';
+            sprinkle.style.background = sprinkleColors[Math.floor(Math.random() * sprinkleColors.length)];
+            sprinkle.style.left = `${15 + Math.random() * 70}%`;
+            sprinkle.style.top = `${topPosition + Math.random() * 15}%`;
+            sprinkle.style.transform = `rotate(${Math.random() * 360}deg)`;
+            container.appendChild(sprinkle);
+        }
+    }
+    
+    function clearCup() {
+        currentRecipe = [];
+        updateCupVisual();
+        updateRecipeDisplay();
+        updateTotalCost();
+    }
+    
+    function updateRecipeDisplay() {
         const recipeList = document.getElementById('recipe-list');
-        const listItem = document.createElement('li');
-        listItem.className = 'text-sm text-gray-700 bg-gray-100 p-2 rounded-lg mb-1 flex justify-between items-center';
-        listItem.innerHTML = `
-            <span>${ingredient.name}</span>
-            <span class="font-semibold text-green-600">$${ingredient.price.toFixed(2)}</span>
-        `;
-        recipeList.appendChild(listItem);
+        recipeList.innerHTML = '';
+        
+        if (currentRecipe.length === 0) {
+            recipeList.innerHTML = '<li class="text-sm text-gray-500 text-center py-4">No ingredients yet...</li>';
+            return;
+        }
+        
+        currentRecipe.forEach((ingredient, index) => {
+            const listItem = document.createElement('li');
+            listItem.className = 'text-sm bg-white p-2 rounded-lg mb-1 flex justify-between items-center border-l-4';
+            listItem.style.borderLeftColor = ingredientColors[ingredient.name] || '#8B7355';
+            listItem.innerHTML = `
+                <span class="flex items-center gap-2">
+                    <span style="background: ${ingredientColors[ingredient.name] || '#8B7355'}; width: 12px; height: 12px; border-radius: 50%; display: inline-block;"></span>
+                    <span>${ingredient.name}</span>
+                </span>
+                ${ingredient.price > 0 ? `<span class="font-semibold text-green-600">$${ingredient.price.toFixed(2)}</span>` : '<span class="text-gray-400 text-xs">Free</span>'}
+            `;
+            recipeList.appendChild(listItem);
+        });
     }
 
-    // Updates the running total display
     function updateTotalCost() {
-        // Sums the price of all items in the currentRecipe array
-        const total = currentRecipe.reduce((sum, item) => sum + item.price, 0);
-        totalCostElement.textContent = `Total: $${total.toFixed(2)}`;
+        // Size multipliers
+        const sizeMultipliers = {
+            'small': 0.85,
+            'medium': 1.0,
+            'large': 1.25
+        };
+        
+        const baseTotal = currentRecipe.reduce((sum, item) => sum + item.price, 0);
+        const sizeMultiplier = sizeMultipliers[drinkSize] || 1.0;
+        const subtotal = baseTotal * sizeMultiplier;
+        const deliveryFee = deliveryOption === 'delivery' ? 2.50 : 0;
+        const finalTotal = subtotal + deliveryFee;
+        
+        const sizePrice = drinkSize === 'small' ? 'Small (+$0)' : 
+                         drinkSize === 'medium' ? 'Medium (+$0)' : 
+                         'Large (+25%)';
+        
+        totalCostElement.innerHTML = `
+            <div class="text-sm text-gray-600">Size: ${sizePrice}</div>
+            <div class="text-lg">Subtotal: $${subtotal.toFixed(2)}</div>
+            ${deliveryFee > 0 ? `<div class="text-sm text-gray-600">Delivery: $${deliveryFee.toFixed(2)}</div>` : ''}
+            <div class="text-2xl font-extrabold text-[#FF6B6B] mt-1">Total: $${finalTotal.toFixed(2)}</div>
+        `;
     }
 
-    // Sends the final recipe to the C# API Controller
+    async function loadUserPoints() {
+        try {
+            const response = await fetch('/api/coffee/currentuser');
+            const result = await response.json();
+            
+            if (result.isLoggedIn) {
+                loyaltyPointsElement.textContent = `${result.points} ⭐`;
+                document.getElementById('status-text').textContent = 'Logged in and earning points!';
+            } else {
+                loyaltyPointsElement.textContent = '0 ⭐';
+                document.getElementById('status-text').textContent = 'Log in to track loyalty points!';
+            }
+        } catch (error) {
+            console.error('Error loading user points:', error);
+            loyaltyPointsElement.textContent = '0 ⭐';
+        }
+    }
+
     async function submitOrder() {
         if (currentRecipe.length === 0) {
-            displayMessage("Please drag some ingredients into the cup first!", 'error');
+            displayMessage("Please add some ingredients to your cup first! 🧋", 'error');
             return;
         }
 
         const submitBtn = document.getElementById('submit-order-btn');
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Processing...';
+        submitBtn.textContent = 'Processing... ⏳';
 
         try {
-            // Sends the currentRecipe array (as JSON) to the C# API
+            // Calculate final price with size multiplier
+            const sizeMultipliers = {
+                'small': 0.85,
+                'medium': 1.0,
+                'large': 1.25
+            };
+            const baseTotal = currentRecipe.reduce((sum, item) => sum + item.price, 0);
+            const sizeMultiplier = sizeMultipliers[drinkSize] || 1.0;
+            
+            // Create order data with size info
+            const orderData = {
+                ingredients: currentRecipe,
+                size: drinkSize,
+                isIced: isIced,
+                isMixed: isMixed,
+                deliveryOption: deliveryOption
+            };
+            
+            console.log('Submitting order:', orderData); // Debug log
+            
             const response = await fetch('/api/coffee/saveorder', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(currentRecipe)
+                credentials: 'include', // Important: include cookies for auth
+                body: JSON.stringify(currentRecipe) // Send ingredients for now
             });
 
-            const result = await response.json();
+            console.log('Response status:', response.status); // Debug log
+            
+            let result;
+            const responseText = await response.text();
+            console.log('Response text:', responseText); // Debug log
+            
+            try {
+                result = JSON.parse(responseText);
+            } catch (jsonError) {
+                console.error('Failed to parse JSON:', responseText);
+                displayMessage('Order failed: Server returned an invalid response. Status: ' + response.status, 'error');
+                return;
+            }
 
             if (response.ok) {
-                // Success: Display results
-                displayMessage('Order placed! ' + (result.message || 'Points updated.'), 'success');
-                loyaltyPointsElement.textContent = `Points: ${result.newPoints}`;
+                displayMessage('🎉 Order placed! Your drink is being prepared! ' + (result.message || ''), 'success');
+                loyaltyPointsElement.textContent = `${result.newPoints || 0} ⭐`;
                 
-                // Clear the cup for a new order
-                currentRecipe = [];
-                document.getElementById('recipe-list').innerHTML = '';
-                updateTotalCost();
+                // Reload points to make sure we have latest
+                await loadUserPoints();
+                
+                // Clear the cup
+                clearCup();
             } else if (response.status === 401) {
-                // Unauthorized: User not logged in (handled by C# ApiController)
-                displayMessage('You must be logged in to track points and place an order.', 'error');
+                displayMessage('You must be logged in to place an order. Please log in and try again! 🔐', 'error');
+                // Redirect to login after a moment
+                setTimeout(() => {
+                    window.location.href = '/Identity/Account/Login';
+                }, 2000);
             } else {
-                // Other API error
-                displayMessage('Order failed: ' + (result.message || 'Unknown error'), 'error');
+                displayMessage('Order failed: ' + (result.message || `Status ${response.status}. Please try again.`), 'error');
+                console.error('API Error:', result, 'Status:', response.status);
             }
         } catch (error) {
-                console.error('Submit error:', error);
-                displayMessage('A network error occurred.', 'error');
-            } finally {
+            console.error('Submit error:', error);
+            displayMessage('A network error occurred: ' + error.message + '. Please check your connection and try again. 🌐', 'error');
+        } finally {
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Submit Order';
+            submitBtn.textContent = 'Submit Order 🚀';
         }
     }
 
-    // Simple message display utility (replaces alert())
     function displayMessage(message, type) {
         const msgBox = document.getElementById('message-box');
         msgBox.textContent = message;
-        msgBox.classList.remove('hidden', 'bg-red-100', 'bg-green-100', 'text-red-700', 'text-green-700');
-        msgBox.classList.add(
-            type === 'success' ? 'bg-green-100' : 'bg-red-100', 
-            type === 'success' ? 'text-green-700' : 'text-red-700', 
-            'p-4', 'mb-4', 'border', 'border-opacity-50'
-        );
+        
+        // Remove all existing classes
+        msgBox.className = '';
+        
+        // Add classes individually (not as strings with spaces)
+        if (type === 'success') {
+            msgBox.classList.add('bg-green-100', 'text-green-700', 'border-green-300');
+        } else {
+            msgBox.classList.add('bg-red-100', 'text-red-700', 'border-red-300');
+        }
+        
+        msgBox.classList.add('p-4', 'mb-4', 'border-2', 'rounded-xl', 'font-semibold', 'shadow-lg');
+        
         setTimeout(() => msgBox.classList.add('hidden'), 5000);
     }
-
 </script>
 
-<div class="container mx-auto px-4 py-8 lg:p-12">
-    <h1 class="text-4xl font-extrabold text-[#6F4E37] mb-8 text-center border-b-2 pb-2">
-        Craft Your Coffee: Drag & Drop
-    </h1>
+<div class="container mx-auto px-4 py-6 lg:p-8">
+    <!-- Cute Header -->
+    <div class="text-center mb-8">
+        <h1 class="text-5xl font-extrabold mb-2" style="background: linear-gradient(135deg, #FF6B6B, #FF8E8E, #FFB6C1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 2px 2px 4px rgba(255,255,255,0.8);">
+            <span id="shop-logo" class="inline-block mr-2" style="width: 50px; height: 50px; vertical-align: middle;">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M30 20 L30 70 Q30 75 35 75 L65 75 Q70 75 70 70 L70 20 Z" fill="#8B4513" stroke="#6B3410" stroke-width="2"/>
+                    <path d="M70 25 L75 25 L80 40 Q80 45 75 45 L70 45" fill="none" stroke="#6B3410" stroke-width="3" stroke-linecap="round"/>
+                    <circle cx="50" cy="50" r="15" fill="#4A2C2A"/>
+                    <path d="M45 45 Q50 40 55 45" stroke="#8B7355" stroke-width="2" fill="none"/>
+                </svg>
+            </span>
+            <span id="shop-name">Katelyn C(offee)</span>
+        </h1>
+        <p class="text-xl text-gray-700 font-semibold">Create Your Perfect Drink!</p>
+    </div>
 
-    <!-- Message Box (Success/Error Messages) -->
-    <div id="message-box" class="hidden rounded-lg transition duration-500 max-w-lg mx-auto text-center font-medium"></div>
+    <!-- Message Box -->
+    <div id="message-box" class="hidden max-w-2xl mx-auto text-center transition duration-500"></div>
 
-    <div class="flex flex-col lg:flex-row gap-10">
-
-        <!-- Left Column: Ingredients Menu -->
-        <div class="lg:w-1/3 p-6 bg-white rounded-xl shadow-2xl h-fit sticky top-20">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">Available Ingredients</h2>
+    <div class="flex flex-col lg:flex-row gap-6">
+        <!-- Left: Ingredients Menu -->
+        <div class="lg:w-1/3 p-6 bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl h-fit sticky top-4 max-h-[85vh] flex flex-col">
+            <h2 class="text-3xl font-bold text-center mb-6" style="color: #FF6B6B;">✨ Ingredients ✨</h2>
             
-            <div class="space-y-6">
-                
-                <!-- Base Ingredients -->
-                <div>
-                    <h3 class="text-lg font-semibold text-[#A67B5B] mb-3">Base / Shots</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="p-3 bg-red-50 hover:bg-red-100 rounded-xl shadow cursor-grab draggable-ingredient text-center transition duration-200" draggable="true" 
-                             data-ingredient='{"name":"Espresso Shot", "type":"Base", "price":2.00}'>
-                            <span class="text-2xl">☕</span><br><span class="text-sm font-medium">Shot ($2.00)</span>
-                        </div>
-                        <div class="p-3 bg-red-50 hover:bg-red-100 rounded-xl shadow cursor-grab draggable-ingredient text-center transition duration-200" draggable="true" 
-                             data-ingredient='{"name":"Extra Shot", "type":"Base", "price":1.00}'>
-                            <span class="text-2xl">➕</span><br><span class="text-sm font-medium">Extra Shot ($1.00)</span>
-                        </div>
-                    </div>
+            <!-- Scrollable ingredients container -->
+            <div class="flex-1 overflow-y-auto pr-2" style="max-height: calc(85vh - 200px);">
+            
+            <!-- Temperature Toggle -->
+            <div class="mb-6 flex justify-center">
+                <div class="temperature-toggle">
+                    <button class="temp-btn active" data-temp="hot">🔥 Hot</button>
+                    <button class="temp-btn" data-temp="iced">🧊 Iced</button>
                 </div>
-
-                <!-- Milk Ingredients -->
-                <div>
-                    <h3 class="text-lg font-semibold text-[#A67B5B] mb-3">Milk / Cream</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="p-3 bg-blue-50 hover:bg-blue-100 rounded-xl shadow cursor-grab draggable-ingredient text-center transition duration-200" draggable="true" 
-                             data-ingredient='{"name":"Whole Milk", "type":"Milk", "price":0.50}'>
-                            <span class="text-2xl">🥛</span><br><span class="text-sm font-medium">Whole Milk ($0.50)</span>
-                        </div>
-                        <div class="p-3 bg-blue-50 hover:bg-blue-100 rounded-xl shadow cursor-grab draggable-ingredient text-center transition duration-200" draggable="true" 
-                             data-ingredient='{"name":"Oat Milk", "type":"Milk", "price":1.50}'>
-                            <span class="text-2xl">🌾</span><br><span class="text-sm font-medium">Oat Milk ($1.50)</span>
-                        </div>
-                        <div class="p-3 bg-blue-50 hover:bg-blue-100 rounded-xl shadow cursor-grab draggable-ingredient text-center transition duration-200" draggable="true" 
-                             data-ingredient='{"name":"Light Cream", "type":"Milk", "price":0.75}'>
-                            <span class="text-2xl">🍶</span><br><span class="text-sm font-medium">Cream ($0.75)</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Flavors and Toppings -->
-                <div>
-                    <h3 class="text-lg font-semibold text-[#A67B5B] mb-3">Flavors / Toppings</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="p-3 bg-yellow-50 hover:bg-yellow-100 rounded-xl shadow cursor-grab draggable-ingredient text-center transition duration-200" draggable="true" 
-                             data-ingredient='{"name":"Caramel Syrup", "type":"Flavor", "price":0.50}'>
-                            <span class="text-2xl">🍯</span><br><span class="text-sm font-medium">Caramel ($0.50)</span>
-                        </div>
-                        <div class="p-3 bg-yellow-50 hover:bg-yellow-100 rounded-xl shadow cursor-grab draggable-ingredient text-center transition duration-200" draggable="true" 
-                             data-ingredient='{"name":"Vanilla Syrup", "type":"Flavor", "price":0.50}'>
-                            <span class="text-2xl">🍦</span><br><span class="text-sm font-medium">Vanilla ($0.50)</span>
-                        </div>
-                        <div class="p-3 bg-yellow-50 hover:bg-yellow-100 rounded-xl shadow cursor-grab draggable-ingredient text-center transition duration-200" draggable="true" 
-                             data-ingredient='{"name":"Whipped Cream", "type":"Topping", "price":0.25}'>
-                            <span class="text-2xl">☁️</span><br><span class="text-sm font-medium">Whip ($0.25)</span>
-                        </div>
-                    </div>
-                </div>
-
             </div>
+            
+            <div class="space-y-4">
+                <!-- Base -->
+                <div>
+                    <h3 class="text-lg font-bold mb-3 text-[#8B4513]">☕ Base</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="ingredient-card p-3 bg-gradient-to-br from-amber-100 to-amber-200 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
+                             data-ingredient='{"name":"Espresso Shot", "type":"Base", "price":2.00, "color":"#4A2C2A"}'>
+                            <div class="text-3xl mb-1">☕</div>
+                            <div class="text-xs font-bold">Espresso ($2.00)</div>
+                        </div>
+                        <div class="ingredient-card p-3 bg-gradient-to-br from-amber-100 to-amber-200 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
+                             data-ingredient='{"name":"Extra Shot", "type":"Base", "price":1.00, "color":"#3D1F1D"}'>
+                            <div class="text-3xl mb-1">➕</div>
+                            <div class="text-xs font-bold">Extra Shot ($1.00)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Milk -->
+                <div>
+                    <h3 class="text-lg font-bold mb-3 text-[#8B4513]">🥛 Milk & Cream</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="ingredient-card p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
+                             data-ingredient='{"name":"Whole Milk", "type":"Milk", "price":0.50, "color":"#FFF8DC"}'>
+                            <div class="text-3xl mb-1">🥛</div>
+                            <div class="text-xs font-bold">Milk ($0.50)</div>
+                        </div>
+                        <div class="ingredient-card p-3 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
+                             data-ingredient='{"name":"Oat Milk", "type":"Milk", "price":1.50, "color":"#F5DEB3"}'>
+                            <div class="text-3xl mb-1">🌾</div>
+                            <div class="text-xs font-bold">Oat Milk ($1.50)</div>
+                        </div>
+                        <div class="ingredient-card p-3 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
+                             data-ingredient='{"name":"Light Cream", "type":"Milk", "price":0.75, "color":"#FFFDD0"}'>
+                            <div class="text-3xl mb-1">🍶</div>
+                            <div class="text-xs font-bold">Cream ($0.75)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flavors -->
+                <div>
+                    <h3 class="text-lg font-bold mb-3 text-[#8B4513]">🍯 Flavors</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="ingredient-card p-3 bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
+                             data-ingredient='{"name":"Caramel Syrup", "type":"Flavor", "price":0.50, "color":"#D2691E"}'>
+                            <div class="text-3xl mb-1">🍯</div>
+                            <div class="text-xs font-bold">Caramel ($0.50)</div>
+                        </div>
+                        <div class="ingredient-card p-3 bg-gradient-to-br from-pink-100 to-pink-200 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
+                             data-ingredient='{"name":"Strawberry Syrup", "type":"Flavor", "price":0.75, "color":"#FF69B4"}'>
+                            <div class="text-3xl mb-1">🍓</div>
+                            <div class="text-xs font-bold">Strawberry ($0.75)</div>
+                        </div>
+                        <div class="ingredient-card p-3 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
+                             data-ingredient='{"name":"Vanilla Syrup", "type":"Flavor", "price":0.50, "color":"#F5F5DC"}'>
+                            <div class="text-3xl mb-1">🍦</div>
+                            <div class="text-xs font-bold">Vanilla ($0.50)</div>
+                        </div>
+                        <div class="ingredient-card p-3 bg-gradient-to-br from-amber-800 to-amber-900 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
+                             data-ingredient='{"name":"Chocolate Syrup", "type":"Flavor", "price":0.75, "color":"#6B4423"}'>
+                            <div class="text-3xl mb-1" style="filter: brightness(0) invert(1);">🍫</div>
+                            <div class="text-xs font-bold text-white">Chocolate ($0.75)</div>
+                        </div>
+                        <div class="ingredient-card p-3 bg-gradient-to-br from-orange-200 to-orange-300 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
+                             data-ingredient='{"name":"Pumpkin Spice Syrup", "type":"Flavor", "price":0.75, "color":"#FF8C00"}'>
+                            <div class="text-3xl mb-1">🎃</div>
+                            <div class="text-xs font-bold">Pumpkin ($0.75)</div>
+                        </div>
+                        <div class="ingredient-card p-3 bg-gradient-to-br from-green-100 to-green-200 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
+                             data-ingredient='{"name":"Matcha Syrup", "type":"Flavor", "price":1.00, "color":"#98FB98"}'>
+                            <div class="text-3xl mb-1">🍵</div>
+                            <div class="text-xs font-bold">Matcha ($1.00)</div>
+                        </div>
+                        <div class="ingredient-card p-3 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
+                             data-ingredient='{"name":"Lavender Syrup", "type":"Flavor", "price":0.75, "color":"#E6E6FA"}'>
+                            <div class="text-3xl mb-1">💜</div>
+                            <div class="text-xs font-bold">Lavender ($0.75)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Toppings -->
+                <div>
+                    <h3 class="text-lg font-bold mb-3 text-[#8B4513]">✨ Toppings</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="ingredient-card p-3 bg-gradient-to-br from-white to-gray-100 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
+                             data-ingredient='{"name":"Whipped Cream", "type":"Topping", "price":0.25, "color":"#FFFFFF"}'>
+                            <div class="text-3xl mb-1">☁️</div>
+                            <div class="text-xs font-bold">Whipped ($0.25)</div>
+                        </div>
+                        <div class="ingredient-card p-3 bg-gradient-to-br from-pink-100 to-pink-200 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
+                             data-ingredient='{"name":"Sprinkles", "type":"Topping", "price":0.50, "color":"transparent"}'>
+                            <div class="text-3xl mb-1">✨</div>
+                            <div class="text-xs font-bold">Sprinkles ($0.50)</div>
+                        </div>
+                        <div class="ingredient-card p-3 bg-gradient-to-br from-amber-200 to-amber-300 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
+                             data-ingredient='{"name":"Cinnamon", "type":"Topping", "price":0.25, "color":"#D2691E"}'>
+                            <div class="text-3xl mb-1">🌟</div>
+                            <div class="text-xs font-bold">Cinnamon ($0.25)</div>
+                        </div>
+                        <div class="ingredient-card p-3 bg-gradient-to-br from-gray-700 to-gray-800 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
+                             data-ingredient='{"name":"Chocolate Chips", "type":"Topping", "price":0.50, "color":"#3D1F1D"}'>
+                            <div class="text-3xl mb-1" style="filter: brightness(0) invert(1);">🍫</div>
+                            <div class="text-xs font-bold text-white">Chips ($0.50)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div> <!-- End scrollable ingredients container -->
         </div>
 
-        <!-- Right Column: Drop Zone and Order Summary -->
-        <div class="lg:w-2/3 p-6 bg-white rounded-xl shadow-2xl flex flex-col items-center">
+        <!-- Right: Cup and Order -->
+        <div class="lg:w-2/3 p-6 bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl">
+            <h2 class="text-3xl font-bold text-center mb-6" style="color: #FF6B6B;">🧋 Your Creation</h2>
             
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">Your Coffee Creation</h2>
+            <!-- Size Selection -->
+            <div class="mb-4">
+                <h3 class="font-bold text-gray-700 mb-2 text-center">📏 Size</h3>
+                <div class="flex gap-2">
+                    <div class="size-option" data-size="small">
+                        <div class="text-lg font-bold">S</div>
+                        <div class="text-xs text-gray-600">Small</div>
+                    </div>
+                    <div class="size-option selected" data-size="medium">
+                        <div class="text-lg font-bold">M</div>
+                        <div class="text-xs text-gray-600">Medium</div>
+                    </div>
+                    <div class="size-option" data-size="large">
+                        <div class="text-lg font-bold">L</div>
+                        <div class="text-xs text-gray-600">Large</div>
+                    </div>
+                </div>
+            </div>
             
-            <!-- Coffee Cup Drop Zone -->
-            <div id="coffee-cup" class="w-64 h-64 bg-gray-50 border-4 border-dashed border-gray-300 rounded-xl flex flex-col justify-center items-center text-gray-400 p-4 transition duration-300 shadow-inner hover:border-green-400">
-                <span class="text-6xl mb-2">☕</span> 
-                <p>Drag ingredients here!</p>
+            <!-- Visual Cup -->
+            <div class="flex justify-center mb-6">
+                <div id="coffee-cup" class="cup-container">
+                    <div class="cup">
+                        <div class="cup-logo">
+                            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M30 20 L30 70 Q30 75 35 75 L65 75 Q70 75 70 70 L70 20 Z" fill="rgba(255,255,255,0.9)" stroke="rgba(139,115,85,0.8)" stroke-width="2"/>
+                                <path d="M70 25 L75 25 L80 40 Q80 45 75 45 L70 45" fill="none" stroke="rgba(139,115,85,0.8)" stroke-width="3" stroke-linecap="round"/>
+                                <circle cx="50" cy="45" r="12" fill="rgba(74,44,42,0.7)"/>
+                                <path d="M45 42 Q50 38 55 42" stroke="rgba(139,115,85,0.6)" stroke-width="1.5" fill="none"/>
+                            </svg>
+                        </div>
+                        <div id="cup-layers" class="cup-layers">
+                            <div class="cup-layer" style="height: 100%; background: transparent; display: flex; align-items: center; justify-content: center;">
+                                <span style="color: rgba(139, 115, 85, 0.4); font-size: 14px;">Empty Cup</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex flex-col items-center gap-3 mb-6">
+                <button id="mix-toggle" class="mix-toggle w-full max-w-xs">
+                    🔀 Mixed (Off)
+                </button>
+                <button id="clear-cup-btn" class="px-6 py-2 bg-gray-200 hover:bg-gray-300 rounded-full font-semibold transition">🗑️ Clear</button>
             </div>
             
             <!-- Recipe List -->
-            <div class="w-full max-w-sm mt-8 p-4 bg-gray-50 rounded-xl shadow-inner">
-                <h3 class="font-bold text-gray-700 mb-2">Current Recipe:</h3>
-                <ul id="recipe-list" class="space-y-1 min-h-[40px]">
-                    <!-- Ingredients will be appended here by JavaScript -->
+            <div class="bg-gradient-to-br from-pink-50 to-purple-50 rounded-2xl p-4 mb-6">
+                <h3 class="font-bold text-gray-700 mb-3 text-center">📝 Recipe</h3>
+                <ul id="recipe-list" class="space-y-2 min-h-[60px] max-h-[200px] overflow-y-auto">
+                    <li class="text-sm text-gray-500 text-center py-4">No ingredients yet...</li>
                 </ul>
-                <div id="total-cost" class="text-xl font-extrabold text-[#6F4E37] mt-3 pt-2 border-t-2 border-gray-200">
-                    Total: $0.00
+            </div>
+            
+            <!-- Delivery Options -->
+            <div class="mb-6">
+                <h3 class="font-bold text-gray-700 mb-3 text-center">🚚 Order Type</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="delivery-option selected" data-delivery="pickup">
+                        <div class="text-3xl text-center mb-2">🏪</div>
+                        <div class="text-center font-bold">Pickup</div>
+                        <div class="text-xs text-center text-gray-600">Free</div>
+                    </div>
+                    <div class="delivery-option" data-delivery="delivery">
+                        <div class="text-3xl text-center mb-2">🚗</div>
+                        <div class="text-center font-bold">Delivery</div>
+                        <div class="text-xs text-center text-gray-600">+$2.50</div>
+                    </div>
                 </div>
             </div>
-
-            <!-- Order Button and Loyalty Status -->
-            <button id="submit-order-btn" class="mt-6 w-full max-w-sm bg-[#6F4E37] hover:bg-[#A67B5B] text-white font-bold py-3 px-4 rounded-xl transition duration-300 shadow-md">
-                Submit Order
-            </button>
-
-            <div class="mt-4 text-center text-sm font-medium text-gray-600">
-                <p>Status: Log in to track loyalty points!</p>
-                <p id="loyalty-points" class="text-lg font-bold text-green-700 mt-2">Points: 0</p>
+            
+            <!-- Total -->
+            <div id="total-cost" class="text-center mb-6 p-4 bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl">
+                <div class="text-2xl font-extrabold text-[#FF6B6B]">Total: $0.00</div>
             </div>
-
+            
+            <!-- Submit Button -->
+            <button id="submit-order-btn" class="w-full bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-bold py-4 px-6 rounded-2xl transition duration-300 shadow-lg text-xl">
+                Submit Order 🚀
+            </button>
+            
+            <div class="mt-6 text-center">
+                <p id="status-text" class="text-sm font-medium text-gray-600">Status: Log in to track loyalty points!</p>
+                <p id="loyalty-points" class="text-2xl font-bold mt-2" style="color: #FF6B6B;">0 ⭐</p>
+            </div>
         </div>
     </div>
 </div>

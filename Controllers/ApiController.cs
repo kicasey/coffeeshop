@@ -30,27 +30,35 @@ namespace CoffeeShopSimulation.Controllers
         [HttpPost("saveorder")]
         public async Task<IActionResult> SaveOrder([FromBody] List<Ingredient> ingredients)
         {
-            // 1. Get the current logged-in user (LoyaltyUser)
-            // If the user is not logged in, we cannot save the order or track points.
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))
+            try
             {
-                // This returns a 401 Unauthorized error if the user isn't logged in
-                return Unauthorized(new { message = "You must be logged in to place an order." });
-            }
+                // Validate ingredients
+                if (ingredients == null || ingredients.Count == 0)
+                {
+                    return BadRequest(new { message = "No ingredients provided." });
+                }
 
-            // Fetch the user object including their orders for point calculation
-            var user = await _userManager.Users
-                                         .Include(u => u.DrinkOrders)
-                                         .FirstOrDefaultAsync(u => u.Id == userId);
+                // 1. Get the current logged-in user (LoyaltyUser)
+                // If the user is not logged in, we cannot save the order or track points.
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    // This returns a 401 Unauthorized error if the user isn't logged in
+                    return Unauthorized(new { message = "You must be logged in to place an order." });
+                }
 
-            if (user == null)
-            {
-                return NotFound(new { message = "Loyalty user not found." });
-            }
+                // Fetch the user object including their orders for point calculation
+                var user = await _userManager.Users
+                                            .Include(u => u.DrinkOrders)
+                                            .FirstOrDefaultAsync(u => u.Id == userId);
 
-            // 2. Calculate the total cost of the order
-            decimal totalCost = ingredients.Sum(i => i.Price);
+                if (user == null)
+                {
+                    return NotFound(new { message = "Loyalty user not found." });
+                }
+
+                // 2. Calculate the total cost of the order
+                decimal totalCost = ingredients.Sum(i => i.Price);
 
             // 3. Create a new DrinkOrder transaction
             var newOrder = new DrinkOrder
@@ -58,27 +66,74 @@ namespace CoffeeShopSimulation.Controllers
                 UserId = user.Id,
                 TotalCost = totalCost,
                 OrderDate = DateTime.Now,
-                // Add the ingredients received from the front-end to the order
-                Ingredients = ingredients
+                Ingredients = new List<Ingredient>()
             };
 
-            // 4. Update Loyalty Points and Money Spent
-            user.CalculateNewPoints(totalCost);
+            // 4. Add ingredients to the order (Entity Framework will handle foreign keys)
+            foreach (var ingredient in ingredients)
+            {
+                // Create a new ingredient and add it to the order
+                var newIngredient = new Ingredient
+                {
+                    Name = ingredient.Name,
+                    Type = ingredient.Type,
+                    Price = ingredient.Price,
+                    DrinkOrder = newOrder  // Set navigation property
+                };
+                newOrder.Ingredients.Add(newIngredient);
+            }
 
-            // 5. Save everything to the database
+            // 5. Save the order (this will also save the ingredients due to the relationship)
             _context.DrinkOrders.Add(newOrder);
 
-            // Note: We need to update the user record because their points changed
-            await _userManager.UpdateAsync(user);
+            // 6. Update Loyalty Points and Money Spent
+            user.CalculateNewPoints(totalCost);
+            
+            // 7. Save all changes to the database
             await _context.SaveChangesAsync();
+            
+            // 8. Update user after saving order (refresh from DB to get latest points)
+            //await _userManager.UpdateAsync(user);
 
-            // 6. Return success message and point data to the front-end
+                // 9. Return success message and point data to the front-end
+                return Ok(new
+                {
+                    message = "Order placed and points updated!",
+                    totalCost = totalCost.ToString("C"),
+                    newPoints = user.LoyaltyPoints,
+                    moneySpent = decimal.Parse(user.MoneySpent).ToString("C")
+                });
+            }
+            catch (Exception)
+            {
+                // Log the exception and return a user-friendly error
+                return StatusCode(500, new { message = "An error occurred while processing your order. Please try again." });
+            }
+        }
+
+        // --- API Endpoint: GetCurrentUserPoints ---
+        // This is called when the page loads to display current loyalty points
+        [HttpGet("currentuser")]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                // User is not logged in
+                return Ok(new { isLoggedIn = false, points = 0 });
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return Ok(new { isLoggedIn = false, points = 0 });
+            }
+
             return Ok(new
             {
-                message = "Order placed and points updated!",
-                totalCost = totalCost.ToString("C"),
-                newPoints = user.LoyaltyPoints,
-                moneySpent = user.MoneySpent.ToString("C")
+                isLoggedIn = true,
+                points = user.LoyaltyPoints,
+                moneySpent = user.MoneySpent
             });
         }
     }

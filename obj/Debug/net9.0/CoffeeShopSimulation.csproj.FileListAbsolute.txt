@@ -266,6 +266,7 @@
 /Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/obj/Debug/net9.0/CoffeeShopSimulation.MvcApplicationPartsAssemblyInfo.cache
 /Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/obj/Debug/net9.0/CoffeeShopSimulation.RazorAssemblyInfo.cache
 /Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/obj/Debug/net9.0/CoffeeShopSimulation.RazorAssemblyInfo.cs
+/Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/obj/Debug/net9.0/CoffeeShopSimulation.sourcelink.json
 /Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/obj/Debug/net9.0/rjimswa.dswa.cache.json
 /Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/obj/Debug/net9.0/rjsmrazor.dswa.cache.json
 /Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/obj/Debug/net9.0/rjsmcshtml.dswa.cache.json
@@ -396,6 +397,8 @@
 /Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/obj/Debug/net9.0/compressed/6v3iy5nl6f-muycvpuwrr.gz
 /Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/obj/Debug/net9.0/compressed/zcnukzfajf-87fc7y1x7t.gz
 /Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/obj/Debug/net9.0/compressed/qv2yblouos-mlv21k5csn.gz
+/Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/obj/Debug/net9.0/compressed/08g354kgmq-w5w7ifz5xf.gz
+/Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/obj/Debug/net9.0/compressed/yqf9iiiliu-w5w7ifz5xf.gz
 /Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/obj/Debug/net9.0/staticwebassets.build.json
 /Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/obj/Debug/net9.0/staticwebassets.build.json.cache
 /Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/obj/Debug/net9.0/staticwebassets.development.json
@@ -406,5 +409,3 @@
 /Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/obj/Debug/net9.0/CoffeeShopSimulation.pdb
 /Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/obj/Debug/net9.0/CoffeeShopSimulation.genruntimeconfig.cache
 /Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/obj/Debug/net9.0/ref/CoffeeShopSimulation.dll
-/Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/obj/Debug/net9.0/compressed/08g354kgmq-w5w7ifz5xf.gz
-/Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/obj/Debug/net9.0/compressed/yqf9iiiliu-w5w7ifz5xf.gz

@@ -1,0 +1,125 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+    
+    body {
+        font-family: 'Nunito', sans-serif;
+        background: linear-gradient(135deg, #FFE5D9 0%, #FFCAD4 50%, #F4ACB7 100%);
+    }
+    
+    .register-container {
+        max-width: 450px;
+        margin: 3rem auto;
+        background: white;
+        border-radius: 30px;
+        padding: 3rem;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    
+    .cute-input {
+        border: 3px solid #FFCAD4;
+        border-radius: 15px;
+        padding: 12px 20px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        font-family: 'Nunito', sans-serif;
+    }
+    
+    .cute-input:focus {
+        outline: none;
+        border-color: #FF6B6B;
+        box-shadow: 0 0 0 4px rgba(255,107,107,0.1);
+    }
+    
+    .cute-btn {
+        background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+        border: none;
+        border-radius: 25px;
+        padding: 15px 30px;
+        color: white;
+        font-weight: 700;
+        font-size: 18px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: 'Nunito', sans-serif;
+        box-shadow: 0 4px 15px rgba(255,107,107,0.4);
+    }
+    
+    .cute-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255,107,107,0.6);
+    }
+    
+    .cute-link {
+        color: #FF6B6B;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .cute-link:hover {
+        color: #FF8E8E;
+        text-decoration: underline;
+    }
+    
+    .header-cute {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .header-cute h1 {
+        font-size: 3rem;
+        background: linear-gradient(135deg, #FF6B6B, #FF8E8E, #FFB6C1);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+    }
+</style>
+
+<div class="register-container">
+    <div class="header-cute">
+        <h1>✨ Join Us! ✨</h1>
+        <p class="text-gray-600">Create your account and start earning points!</p>
+    </div>
+    
+    <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+        
+        <div class="mb-4">
+            <label asp-for="Input.Email" class="form-label fw-bold mb-2" style="color: #8B4513;">📧 Email</label>
+            <input asp-for="Input.Email" class="form-control cute-input w-100" autocomplete="username" aria-required="true" placeholder="your.email@example.com" />
+            <span asp-validation-for="Input.Email" class="text-danger"></span>
+        </div>
+        
+        <div class="mb-4">
+            <label asp-for="Input.Password" class="form-label fw-bold mb-2" style="color: #8B4513;">🔒 Password</label>
+            <input asp-for="Input.Password" class="form-control cute-input w-100" autocomplete="new-password" aria-required="true" placeholder="Create a password" />
+            <span asp-validation-for="Input.Password" class="text-danger"></span>
+        </div>
+        
+        <div class="mb-4">
+            <label asp-for="Input.ConfirmPassword" class="form-label fw-bold mb-2" style="color: #8B4513;">✅ Confirm Password</label>
+            <input asp-for="Input.ConfirmPassword" class="form-control cute-input w-100" autocomplete="new-password" aria-required="true" placeholder="Confirm your password" />
+            <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+        </div>
+        
+        <div class="mb-4">
+            <button id="registerSubmit" type="submit" class="cute-btn w-100">Register 🎉</button>
+        </div>
+        
+        <div class="text-center">
+            <p>
+                Already have an account? <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl" class="cute-link">Log in here! ☕</a>
+            </p>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

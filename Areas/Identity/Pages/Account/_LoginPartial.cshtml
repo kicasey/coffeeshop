@@ -4,13 +4,14 @@
 @inject SignInManager<LoyaltyUser> SignInManager
 @inject UserManager<LoyaltyUser> UserManager
 
-<ul class="navbar-nav flex items-center space-x-4">
-@if (SignInManager.IsSignedIn(User))
+@{
+    @* User is logged in *@
+    if (SignInManager.IsSignedIn(User))
 {
-    // User is logged in
     var user = await UserManager.GetUserAsync(User);
     var points = user?.LoyaltyPoints ?? 0;
 
+        <ul class="navbar-nav flex items-center space-x-4">
     <li class="nav-item text-gray-700 font-bold">
         Points: <span class="text-green-600">@points</span>
     </li>
@@ -21,15 +22,18 @@
             </button>
         </form>
     </li>
+        </ul>
 }
 else
 {
-    // User is NOT logged in
+        @* User is NOT logged in *@
+        <ul class="navbar-nav flex items-center space-x-4">
     <li class="nav-item">
         <a class="text-white bg-blue-600 hover:bg-blue-700 font-semibold py-2 px-4 rounded-lg transition duration-300" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
     </li>
     <li class="nav-item">
         <a class="text-gray-700 hover:text-[#A67B5B] font-semibold transition duration-300" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
     </li>
+        </ul>
+    }
 }
-</ul>
