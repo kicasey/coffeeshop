@@ -109,6 +109,13 @@
         </div>
         
         <div class="mb-4">
+            <label asp-for="Input.Birthday" class="form-label fw-bold mb-2" style="color: #8B4513;">🎂 Birthday (Optional)</label>
+            <input asp-for="Input.Birthday" type="date" class="form-control cute-input w-100" />
+            <span asp-validation-for="Input.Birthday" class="text-danger"></span>
+            <small class="text-muted">Get a free drink on your birthday! 🎉</small>
+        </div>
+        
+        <div class="mb-4">
             <button id="registerSubmit" type="submit" class="cute-btn w-100">Register 🎉</button>
         </div>
         

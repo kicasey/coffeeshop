@@ -98,6 +98,10 @@ namespace CoffeeShopSimulation.Areas.Identity.Pages.Account
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
+            
+            [DataType(DataType.Date)]
+            [Display(Name = "Birthday (Optional - Get a free drink on your birthday!)")]
+            public DateTime? Birthday { get; set; }
         }
 
 
@@ -117,6 +121,11 @@ namespace CoffeeShopSimulation.Areas.Identity.Pages.Account
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+                // Set birthday if provided
+                if (Input.Birthday.HasValue)
+                {
+                    user.Birthday = Input.Birthday.Value;
+                }
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)

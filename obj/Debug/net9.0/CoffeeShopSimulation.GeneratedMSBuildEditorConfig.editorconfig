@@ -64,8 +64,24 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9JbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/Views/Home/Landing.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9MYW5kaW5nLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/Views/Home/OrderComplete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9PcmRlckNvbXBsZXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/Views/Home/OrderHistory.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9PcmRlckhpc3RvcnkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9Qcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/Views/Home/Rewards.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9SZXdhcmRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/Views/Shared/Error.cshtml]
@@ -74,6 +90,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [/Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/Views/Shared/_LoginPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19Mb2dpblBhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/Views/Shared/_NavigationMenu.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19OYXZpZ2F0aW9uTWVudS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/Views/Shared/_ValidationScriptsPartial.cshtml]

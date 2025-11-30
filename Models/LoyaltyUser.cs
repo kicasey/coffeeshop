@@ -8,26 +8,28 @@ namespace CoffeeShopSimulation.Models
 {
     public class LoyaltyUser : IdentityUser
     {
-        // --- Private Fields (moneySpent changed to string) ---
+        // private fields
         private int loyaltyPoints;
-        private string moneySpent; // <--- CHANGED TO STRING
+        private string moneySpent; // changed to string
         private string firstName;
         private string lastName;
+        private DateTime? birthday; // nullable birthday field
+        private DateTime? lastBirthdayDiscountUsed; // track when birthday discount was last used make sure cant use again today
 
-        // --- Navigation Property ---
+        // navigation property
         private List<DrinkOrder> drinkOrders;
 
-        // --- Constructors ---
+        // constructors
         public LoyaltyUser()
         {
             this.loyaltyPoints = 0;
-            this.moneySpent = "0.00"; // <--- Initialized as a string
+            this.moneySpent = "0.00"; // initialized as a string
             this.firstName = string.Empty;
             this.lastName = string.Empty;
             this.drinkOrders = new List<DrinkOrder>();
         }
 
-        // --- Public Properties ---
+        // getters and setters
 
         public int LoyaltyPoints
         {
@@ -35,20 +37,20 @@ namespace CoffeeShopSimulation.Models
             set { loyaltyPoints = value; }
         }
 
-        // This property remains a string to map correctly to the database's TEXT column
+        // this property remains a string to map correctly to the database's TEXT column
         public string MoneySpent
         {
             get { return moneySpent; }
             set { moneySpent = value; }
         }
 
-        // *** NEW HELPER PROPERTY FOR CALCULATIONS ***
-        // Safely converts the stored string to a decimal for arithmetic operations
+        // new helper property for calculations
+        // safely converts the stored string to a decimal for arithmetic operations
         public decimal CurrentMoneySpentAsDecimal 
         {
             get 
             { 
-                if (decimal.TryParse(this.moneySpent, out decimal result))
+                if (decimal.TryParse(this.moneySpent, out decimal result)) // try to parse the money spent as a decimal
                 {
                     return result;
                 }
@@ -56,6 +58,7 @@ namespace CoffeeShopSimulation.Models
             }
         }
 
+        // getters and setters
         public string FirstName
         {
             get { return firstName; }
@@ -68,25 +71,68 @@ namespace CoffeeShopSimulation.Models
             set { lastName = value; }
         }
 
+        // navigation property
         public List<DrinkOrder> DrinkOrders
         {
             get { return drinkOrders; }
             set { drinkOrders = value; }
         }
 
-        // --- Custom Business Logic (Updated to use CurrentMoneySpentAsDecimal) ---
+        // getters and setters
+        public DateTime? Birthday
+        {
+            get { return birthday; }
+            set { birthday = value; }
+        }
+
+        public DateTime? LastBirthdayDiscountUsed
+        {
+            get { return lastBirthdayDiscountUsed; }
+            set { lastBirthdayDiscountUsed = value; }
+        }
+
+        // check if today is user's birthday
+        public bool IsBirthdayToday()
+        {
+            if (!birthday.HasValue) return false;
+            var today = DateTime.Today;
+            return birthday.Value.Month == today.Month && birthday.Value.Day == today.Day;
+        }
+
+        // check if birthday discount has been used today
+        public bool HasUsedBirthdayDiscountToday()
+        {
+            if (!lastBirthdayDiscountUsed.HasValue) return false;
+            var today = DateTime.Today;
+            return lastBirthdayDiscountUsed.Value.Date == today;
+        }
+
+        // check if user can redeem a reward
+        public bool CanRedeemReward(string size)
+        {
+            int pointsNeeded = size.ToLower() switch
+            {
+                "small" => 200,
+                "medium" => 300,
+                "large" => 400,
+                _ => int.MaxValue
+            };
+            return LoyaltyPoints >= pointsNeeded;
+        }
+
+        // custom business logic (updated: 5 points per $1)
         public void CalculateNewPoints(decimal orderTotal)
         {
-            // 1. Calculate and update total money spent
+            // 1) calculate and update total money spent
             decimal newTotalSpent = CurrentMoneySpentAsDecimal + orderTotal;
             
-            // 2. Save the total spent back as a formatted string ("F2" ensures two decimal places)
+            // 2) save the total spent back as a formatted string ("F2" ensures two decimal places!!)
             this.MoneySpent = newTotalSpent.ToString("F2"); 
-
-            // 3. Calculate newly earned points (Rule: 1 point for every $5 spent cumulatively)
-            int totalPossiblePoints = (int)Math.Floor(newTotalSpent / 5.00m);
             
-            // 4. Update Loyalty Points
+            // 3) calculate newly earned points (Rule: 5 points for every $1 spent cumulatively)
+            int totalPossiblePoints = (int)Math.Floor(newTotalSpent * 5.00m);
+            
+            // 4) update loyalty points
             this.LoyaltyPoints = totalPossiblePoints;
         }
     }

@@ -1,0 +1,211 @@
+@using CoffeeShopSimulation.Models
+@using CoffeeShopSimulation.Data
+@inject Microsoft.AspNetCore.Identity.UserManager<CoffeeShopSimulation.Models.LoyaltyUser> UserManager
+@{
+    ViewData["Title"] = "Order History";
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+    
+    body {
+        font-family: 'Nunito', sans-serif;
+        background: linear-gradient(135deg, #FFE5D9 0%, #FFCAD4 50%, #F4ACB7 100%);
+        min-height: 100vh;
+        padding: 2rem;
+    }
+    
+    .history-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 40px;
+        padding: 3rem;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+    
+    .stat-card {
+        background: linear-gradient(135deg, #FFF5F5, #FFE5E5);
+        border-radius: 20px;
+        padding: 1.5rem;
+        text-align: center;
+        border: 2px solid #FFB6C1;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #FF6B6B;
+    }
+    
+    .order-list {
+        margin-top: 2rem;
+    }
+    
+    .order-card {
+        background: #F9F9F9;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid #FF6B6B;
+    }
+    
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .order-date {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .order-total {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #FF6B6B;
+    }
+    
+    .order-ingredients {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .reorder-btn {
+        background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        margin-top: 0.5rem;
+    }
+    
+    .reorder-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(255,107,107,0.3);
+    }
+</style>
+
+<div class="history-container">
+    <h1 class="text-4xl font-extrabold mb-4" style="background: linear-gradient(135deg, #FF6B6B, #FF8E8E); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        📋 Order History
+    </h1>
+    
+    @{
+        var orders = ViewBag.Orders as List<DrinkOrder> ?? new List<DrinkOrder>();
+        var totalOrders = orders.Count;
+        var totalSpent = orders.Sum(o => o.TotalCost);
+        var user = ViewBag.User as LoyaltyUser;
+    }
+    
+    @if (totalOrders > 0)
+    {
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Orders</div>
+                <div class="stat-value">@totalOrders</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Spent</div>
+                <div class="stat-value">$@totalSpent.ToString("F2")</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Lifetime Points</div>
+                <div class="stat-value">@ViewBag.LifetimePoints ⭐</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Current Points</div>
+                <div class="stat-value">@(user?.LoyaltyPoints ?? 0) ⭐</div>
+            </div>
+        </div>
+        
+        <div class="order-list">
+            <h2 class="text-2xl font-bold mb-4" style="color: #FF6B6B;">Recent Orders</h2>
+            
+            @foreach (var order in orders)
+            {
+                <div class="order-card">
+                    <div class="order-header">
+                        <div>
+                            <div class="order-date">@order.OrderDate.ToString("MMM dd, yyyy 'at' h:mm tt")</div>
+                            <div class="order-total">
+                                @order.TotalCost.ToString("C")
+                                @if (order.DiscountAmount.HasValue && order.DiscountAmount.Value > 0)
+                                {
+                                    <span class="text-sm text-green-600">
+                                        @if(order.DiscountType == "birthday") { <span>🎉 Birthday Free</span> }
+                                        else if(order.DiscountType == "redemption") { <span>⭐ Redeemed</span> }
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-600">Order #@order.Id</div>
+                        </div>
+                    </div>
+                    <div class="order-ingredients">
+                        @if (order.Ingredients != null && order.Ingredients.Count > 0)
+                        {
+                            <div>
+                                <strong>Ingredients:</strong> 
+                                @string.Join(", ", order.Ingredients.Select(i => i.Name))
+                            </div>
+                        }
+                    </div>
+                    <button class="reorder-btn" onclick="reorderDrink(@order.Id)">
+                        🔄 Reorder This Drink
+                    </button>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-12">
+            <div class="text-6xl mb-4">☕</div>
+            <h2 class="text-3xl font-bold mb-4" style="color: #FF6B6B;">No Orders Yet</h2>
+            <p class="text-gray-600 text-lg mb-6">Place your first order to get started!</p>
+            <a asp-controller="Home" asp-action="Index" class="inline-block bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-bold py-3 px-8 rounded-2xl transition duration-300 shadow-lg text-lg">
+                Start Ordering! 🚀
+            </a>
+        </div>
+    }
+</div>
+
+<script>
+    async function reorderDrink(orderId) {
+        // fetch order details and redirect to order page with ingredients
+        try {
+            const response = await fetch(`/Home/GetOrder/${orderId}`, {
+                credentials: 'include'
+            });
+            const result = await response.json();
+            if (result.success) {
+                // Redirect to order page with ingredients
+                const ingredientsJson = encodeURIComponent(JSON.stringify(result.ingredients));
+                window.location.href = `/Home/Index?reorder=${ingredientsJson}`;
+            } else {
+                alert(result.message || 'Error loading order details. Please try again.');
+            }
+        } catch (error) {
+            alert('Error loading order details. Please try again.');
+        }
+    }
+</script>

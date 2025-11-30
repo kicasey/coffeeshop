@@ -6,43 +6,43 @@ using CoffeeShopSimulation.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- 1. CONFIGURATION ---
+// 1. configuration
 
-// Get the connection string from appsettings.json
+// get the connection string from appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
-                       ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-// --- 2. ADD SERVICES ---
+// 2. add services
 
-// Add Database Context for Entity Framework Core (using the DatabaseContext name you chose)
+// add database context for entity framework core
 builder.Services.AddDbContext<DatabaseContext>(options =>
     options.UseSqlite(connectionString));
 
-// Configure Identity System (Login/Register/User Management)
+// configure identity system (login/register/user management)
 builder.Services.AddDefaultIdentity<LoyaltyUser>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddEntityFrameworkStores<DatabaseContext>();
 
-// Add a no-op email sender (required by Identity but not used since email confirmation is disabled)
+// add a no-op email sender (required by Identity but not used since email confirmation is disabled)
 builder.Services.AddTransient<IEmailSender, NoOpEmailSender>();
 
-// Add MVC Controllers and Views
+// add MVC controllers and views (mvc is the model view controller framework)
 builder.Services.AddControllersWithViews();
 
-// Add support for Razor Pages (where Identity UI lives)
+// add support for razor pages (where identity UI lives)
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
-// --- 3. CONFIGURE HTTP REQUEST PIPELINE ---
+// 3. configure HTTP request pipeline
 
-// Check for development environment
+// check for development environment
 if (app.Environment.IsDevelopment())
 {
-    // Enable detailed error pages during development
+    // enable detailed error pages during development
     app.UseDeveloperExceptionPage(); 
     
-    // Optional: Auto-migrate database on startup in development. 
-    // This can help ensure the DB is always ready.
+    // auto-migrate database on startup in development
+    // ensures the DB is always ready
     using (var scope = app.Services.CreateScope())
     {
         var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
@@ -56,33 +56,33 @@ else
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles(); // Enables serving CSS, JS, images from wwwroot
+app.UseStaticFiles(); // enables serving CSS, JS, images from wwwroot
 
 app.UseRouting();
 
-// CRITICAL: These two lines must be here and in this order for user login/session tracking
+// user login/session tracking must be here and in this order
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Map the default login/register pages built into Identity
+// map the default login/register pages built into identity
 app.MapRazorPages(); 
 
-// Map API controllers
+// map API controllers
 app.MapControllers();
 
-// Map the controllers for your custom web pages (Home, API, etc.)
+// map the controllers for your custom web pages (Home, API, etc.)
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Landing}/{id?}"); // start at landing page
 
 app.Run();
 
-// No-op email sender implementation (required by Identity but not used)
+// no-op email sender implementation (required by Identity but not used)
 public class NoOpEmailSender : IEmailSender
 {
     public Task SendEmailAsync(string email, string subject, string htmlMessage)
     {
-        // Do nothing - email confirmation is disabled
+        // do nothing - email confirmation is disabled
         return Task.CompletedTask;
     }
 }

@@ -1,0 +1,205 @@
+@{
+    ViewData["Title"] = "Order Complete!";
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+    
+    body {
+        font-family: 'Nunito', sans-serif;
+        background: linear-gradient(135deg, #FFE5D9 0%, #FFCAD4 50%, #F4ACB7 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+    
+    .complete-container {
+        max-width: 700px;
+        background: white;
+        border-radius: 40px;
+        padding: 4rem 3rem;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+        text-align: center;
+        position: relative;
+    }
+    
+    .goodbye-message {
+        font-size: 2rem;
+        color: #FF6B6B;
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+    
+    .success-icon {
+        font-size: 6rem;
+        animation: bounce 1s ease;
+        margin-bottom: 1rem;
+    }
+    
+    @@keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+    
+    .success-title {
+        font-size: 2.5rem;
+        background: linear-gradient(135deg, #FF6B6B, #FF8E8E, #FFB6C1);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 1rem 0;
+        font-weight: 800;
+    }
+    
+    .thank-you-text {
+        font-size: 1.3rem;
+        color: #666;
+        margin-bottom: 2rem;
+    }
+    
+    .stats-box {
+        background: linear-gradient(135deg, #FFF5F5, #FFE5E5);
+        border-radius: 20px;
+        padding: 2rem;
+        margin: 2rem 0;
+        border: 3px solid #FFB6C1;
+    }
+    
+    .stat-item {
+        margin: 1rem 0;
+        font-size: 1.2rem;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #FF6B6B;
+    }
+    
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .action-btn {
+        width: 100%;
+        padding: 18px 40px;
+        border: none;
+        border-radius: 25px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: 'Nunito', sans-serif;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+    }
+    
+    .btn-order-again {
+        background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+        color: white;
+    }
+    
+    .btn-rewards {
+        background: linear-gradient(135deg, #FFD700, #FFA500);
+        color: white;
+    }
+    
+    .guest-message {
+        background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin: 2rem 0;
+        color: #1976D2;
+        font-weight: 600;
+    }
+</style>
+
+<div class="complete-container">
+    <div class="goodbye-message">Thank you for visiting!</div>
+    <div class="success-icon">🎉</div>
+    <h1 class="success-title">Order Complete!</h1>
+    <p class="thank-you-text">Your order has been placed successfully! ☕</p>
+    
+    <div class="stats-box">
+        <div class="stat-item">
+            <div class="text-gray-600">Order Total</div>
+            <div class="stat-value">@ViewBag.Total</div>
+        </div>
+        @if (ViewBag.IsLoggedIn == true)
+        {
+            @if (ViewBag.HasDiscount == true && ViewBag.Points == 0)
+            {
+                <div class="stat-item">
+                    <div class="text-gray-600">Discount Applied</div>
+                    <div class="stat-value">
+                        @if (ViewBag.DiscountType == "birthday")
+                        {
+                            <span>🎉 Birthday Free!</span>
+                        }
+                        else if (ViewBag.DiscountType == "redemption")
+                        {
+                            <span>⭐ Redeemed Reward!</span>
+                        }
+                    </div>
+                    <div class="text-sm text-gray-500 mt-2">No points earned (discounted order)</div>
+                </div>
+            }
+            else if (ViewBag.PointsEarned > 0 || ViewBag.Points > 0)
+            {
+                <div class="stat-item">
+                    <div class="text-gray-600">Points Earned This Order</div>
+                    <div class="stat-value">@ViewBag.PointsEarned ⭐</div>
+                </div>
+                <div class="stat-item">
+                    <div class="text-gray-600">Total Points</div>
+                    <div class="stat-value text-lg">@ViewBag.Points ⭐</div>
+                </div>
+            }
+            else if (ViewBag.PointsEarned == 0 && ViewBag.Points > 0)
+            {
+                <div class="stat-item">
+                    <div class="text-gray-600">Total Points</div>
+                    <div class="stat-value">@ViewBag.Points ⭐</div>
+                </div>
+                <div class="text-sm text-gray-500 mt-2">No points earned from this order (discounted)</div>
+            }
+        }
+        else
+        {
+            <div class="guest-message">
+                👤 You ordered as a guest. Create an account to start earning loyalty points!
+            </div>
+        }
+        <div class="stat-item">
+            <div class="text-gray-600">Order #@ViewBag.OrderId</div>
+        </div>
+    </div>
+    
+    <div class="action-buttons">
+        <a asp-controller="Home" asp-action="Index" class="action-btn btn-order-again">
+            ☕ Order Again
+        </a>
+        
+        @if (ViewBag.Points > 0)
+        {
+            <a asp-controller="Home" asp-action="Rewards" class="action-btn btn-rewards">
+                ⭐ View Rewards
+            </a>
+        }
+        
+        <a asp-controller="Home" asp-action="Landing" class="action-btn" style="background: linear-gradient(135deg, #87CEEB, #98D8E8); color: white;">
+            🏠 Return Home
+        </a>
+    </div>
+</div>

@@ -18,6 +18,8 @@
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
+    @await Html.PartialAsync("_NavigationMenu")
+    
     <!-- Header/Navigation Bar -->
     <header class="bg-white/90 backdrop-blur-sm shadow-lg sticky top-0 z-50">
         <nav class="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">

@@ -1,0 +1,275 @@
+@{
+    ViewData["Title"] = "Rewards";
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+    
+    body {
+        font-family: 'Nunito', sans-serif;
+        background: linear-gradient(135deg, #FFE5D9 0%, #FFCAD4 50%, #F4ACB7 100%);
+        min-height: 100vh;
+        padding: 2rem;
+    }
+    
+    .rewards-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 40px;
+        padding: 3rem;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+    }
+    
+    .rewards-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .rewards-title {
+        font-size: 3rem;
+        background: linear-gradient(135deg, #FF6B6B, #FF8E8E, #FFB6C1);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+        font-weight: 800;
+    }
+    
+    .points-display {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #FF6B6B;
+        margin: 1rem 0;
+    }
+    
+    .birthday-banner {
+        background: linear-gradient(135deg, #FFD700, #FFA500);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 20px;
+        margin: 2rem 0;
+        text-align: center;
+        font-size: 1.3rem;
+        font-weight: 700;
+        box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+        animation: pulse 2s infinite;
+    }
+    
+    @@keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+    }
+    
+    .reward-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+    
+    .reward-card {
+        background: linear-gradient(135deg, #FFF5F5, #FFE5E5);
+        border: 3px solid #FFB6C1;
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .reward-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        border-color: #FF6B6B;
+    }
+    
+    .reward-size {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #FF6B6B;
+        margin-bottom: 0.5rem;
+    }
+    
+    .reward-points {
+        font-size: 1.2rem;
+        color: #666;
+        margin-bottom: 1rem;
+    }
+    
+    .redeem-btn {
+        background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 15px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .redeem-btn:hover:not(:disabled) {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(255,107,107,0.4);
+    }
+    
+    .redeem-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .message-box {
+        padding: 1rem;
+        border-radius: 15px;
+        margin: 1rem 0;
+        text-align: center;
+        font-weight: 600;
+        display: none;
+    }
+    
+    .message-success {
+        background: #D4EDDA;
+        color: #155724;
+        border: 2px solid #C3E6CB;
+    }
+    
+    .message-error {
+        background: #F8D7DA;
+        color: #721C24;
+        border: 2px solid #F5C6CB;
+    }
+    
+    .notification-dot-small {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: #FF6B6B;
+        border-radius: 50%;
+        width: 10px;
+        height: 10px;
+        animation: pulse-badge 1.5s infinite;
+    }
+    
+    .redeem-btn.has-notification {
+        position: relative;
+    }
+    
+    @@keyframes pulse-badge {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.2); opacity: 0.8; }
+    }
+</style>
+
+<div class="rewards-container">
+    <div class="rewards-header">
+        <h1 class="rewards-title">⭐ Rewards Center ⭐</h1>
+        <div class="points-display">@ViewBag.Points Points</div>
+        <p class="text-gray-600">Redeem your points for free drinks!</p>
+    </div>
+    
+    @if (ViewBag.IsBirthday == true)
+    {
+        <div class="birthday-banner">
+            🎉 Happy Birthday! 🎉<br>
+            Enjoy a FREE drink on us today! (Just place an order)
+        </div>
+    }
+    
+    <div id="messageBox" class="message-box"></div>
+    
+    <div class="reward-options">
+        <div class="reward-card">
+            <div class="reward-size">Small</div>
+            <div class="reward-points">200 Points</div>
+            <button class="redeem-btn @(ViewBag.Points >= 200 ? "has-notification" : "")" onclick="redeemReward('small')" @(ViewBag.Points < 200 ? "disabled" : "")>
+                Redeem
+                @if (ViewBag.Points >= 200)
+                {
+                    <span class="notification-dot-small"></span>
+                }
+            </button>
+        </div>
+        
+        <div class="reward-card">
+            <div class="reward-size">Medium</div>
+            <div class="reward-points">300 Points</div>
+            <button class="redeem-btn @(ViewBag.Points >= 300 ? "has-notification" : "")" onclick="redeemReward('medium')" @(ViewBag.Points < 300 ? "disabled" : "")>
+                Redeem
+                @if (ViewBag.Points >= 300)
+                {
+                    <span class="notification-dot-small"></span>
+                }
+            </button>
+        </div>
+        
+        <div class="reward-card">
+            <div class="reward-size">Large</div>
+            <div class="reward-points">400 Points</div>
+            <button class="redeem-btn @(ViewBag.Points >= 400 ? "has-notification" : "")" onclick="redeemReward('large')" @(ViewBag.Points < 400 ? "disabled" : "")>
+                Redeem
+                @if (ViewBag.Points >= 400)
+                {
+                    <span class="notification-dot-small"></span>
+                }
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function redeemReward(size) {
+        // Disable all redeem buttons to prevent double-click
+        const buttons = document.querySelectorAll('.redeem-btn');
+        buttons.forEach(btn => {
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+        });
+        
+        fetch('/Home/RedeemReward', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+            },
+            credentials: 'include',
+            body: JSON.stringify({ size: size })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.style.display = 'block';
+            messageBox.className = 'message-box ' + (data.success ? 'message-success' : 'message-error');
+            messageBox.textContent = data.message;
+            
+            if (data.success) {
+                // Redirect immediately on success (no delay)
+                if (data.redirectUrl) {
+                    window.location.href = data.redirectUrl;
+                    return; // Exit immediately
+                } else {
+                    location.reload();
+                }
+            } else {
+                // Re-enable buttons on error
+                buttons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.textContent = 'Redeem';
+                });
+            }
+        })
+        .catch(error => {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.style.display = 'block';
+            messageBox.className = 'message-box message-error';
+            messageBox.textContent = 'An error occurred. Please try again.';
+            
+            // Re-enable buttons on error
+            buttons.forEach(btn => {
+                btn.disabled = false;
+                btn.textContent = 'Redeem';
+            });
+        });
+    }
+</script>
+

@@ -18,6 +18,46 @@
         position: relative;
         margin: 0 auto;
         filter: drop-shadow(0 15px 30px rgba(0,0,0,0.3));
+        transition: all 0.3s ease;
+    }
+    
+    .cup-container.size-small {
+        width: 180px;
+        height: 260px;
+    }
+    
+    .cup-container.size-medium {
+        width: 220px;
+        height: 320px;
+    }
+    
+    .cup-container.size-large {
+        width: 260px;
+        height: 380px;
+    }
+    
+    .size-option.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+    
+    .ingredient-card.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+    
+    .emoji-wrapper {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        padding: 4px;
+        width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
     
     /* Clear plastic cup with 3D effect */
@@ -314,6 +354,190 @@
     .overflow-y-auto::-webkit-scrollbar-thumb:hover {
         background: #FF6B6B;
     }
+    
+    /* Review Order Modal */
+    .review-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 10000;
+    }
+    
+    .review-modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(5px);
+    }
+    
+    .review-modal-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 20px;
+        max-width: 700px;
+        width: 90%;
+        max-height: 85vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+    
+    .review-modal-header {
+        padding: 2rem;
+        border-bottom: 2px solid #FFE5D9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .review-modal-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #FF6B6B;
+        margin: 0;
+    }
+    
+    .review-modal-close {
+        background: transparent;
+        border: none;
+        font-size: 28px;
+        color: #666;
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+    }
+    
+    .review-modal-close:hover {
+        background: #FFE5D9;
+        transform: rotate(90deg);
+    }
+    
+    .review-modal-body {
+        padding: 2rem;
+        overflow-y: auto;
+        flex: 1;
+    }
+    
+    .review-drink-item {
+        background: linear-gradient(135deg, #FFF5F5, #FFE5E5);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border: 2px solid #FFB6C1;
+    }
+    
+    .review-drink-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .review-drink-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #FF6B6B;
+    }
+    
+    .review-drink-cost {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #10B981;
+    }
+    
+    .review-drink-details {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+    
+    .review-ingredient-list {
+        list-style: none;
+        padding: 0;
+        margin: 0.5rem 0;
+    }
+    
+    .review-ingredient-item {
+        padding: 0.3rem 0;
+        font-size: 0.9rem;
+        color: #555;
+        border-bottom: 1px solid rgba(255, 182, 193, 0.3);
+    }
+    
+    .review-ingredient-item:last-child {
+        border-bottom: none;
+    }
+    
+    .review-total-section {
+        background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+        color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+        text-align: center;
+    }
+    
+    .review-total-label {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .review-total-amount {
+        font-size: 2rem;
+        font-weight: 800;
+    }
+    
+    .review-modal-footer {
+        padding: 1.5rem 2rem;
+        border-top: 2px solid #FFE5D9;
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .review-modal-cancel,
+    .review-modal-confirm {
+        flex: 1;
+        padding: 1rem;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .review-modal-cancel {
+        background: #E5E7EB;
+        color: #374151;
+    }
+    
+    .review-modal-cancel:hover {
+        background: #D1D5DB;
+    }
+    
+    .review-modal-confirm {
+        background: linear-gradient(135deg, #10B981, #059669);
+        color: white;
+    }
+    
+    .review-modal-confirm:hover {
+        background: linear-gradient(135deg, #059669, #047857);
+        transform: scale(1.05);
+    }
 </style>
 
 <script>
@@ -323,6 +547,7 @@
     let deliveryOption = 'pickup'; // 'pickup', 'delivery'
     let drinkSize = 'medium'; // 'small', 'medium', 'large'
     let isMixed = false; // true = blended layers, false = layered
+    let orderDrinks = []; // Array to store multiple drinks (up to 4)
     
     // Ingredient color mappings with opacity for transparent cup
     const ingredientColors = {
@@ -342,7 +567,8 @@
         'Whipped Cream': '#FFFFFF',
         'Ice': 'transparent', // Ice is handled separately
         'Cinnamon': 'rgba(210, 105, 30, 0.6)',
-        'Chocolate Chips': 'rgba(61, 31, 29, 0.9)',
+        'Chocolate Chips': 'rgba(101, 67, 33, 0.9)',
+        'Water': 'rgba(173, 216, 230, 0.3)',
         'Sprinkles': 'transparent' // Sprinkles are handled separately
     };
     
@@ -356,17 +582,299 @@
     
     let totalCostElement;
     let loyaltyPointsElement;
+    let hasBirthdayDiscount = @((ViewBag.IsBirthday ?? false) ? "true" : "false");
+    let isBirthdayButRedeemed = @((ViewBag.IsBirthdayButRedeemed ?? false) ? "true" : "false");
+    let hasRedeemDiscount = @((ViewBag.HasRedeemDiscount ?? false) ? "true" : "false");
+    let redeemSize = '@(ViewBag.RedeemSize ?? "")';
+    let discountAmount = 0;
 
     window.onload = function() {
         totalCostElement = document.getElementById('total-cost');
         loyaltyPointsElement = document.getElementById('loyalty-points');
         
+        // Restore order drinks from sessionStorage if they exist
+        try {
+            const savedOrderDrinks = sessionStorage.getItem('orderDrinks');
+            if (savedOrderDrinks) {
+                orderDrinks = JSON.parse(savedOrderDrinks);
+            }
+        } catch (e) {
+            console.warn('Error loading saved order drinks:', e);
+        }
+        
+        // Check URL for redeem parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('redeem')) {
+            hasRedeemDiscount = true;
+            redeemSize = urlParams.get('redeem');
+        }
+        
+        // Core functionality - must work
         loadUserPoints();
         setupDragAndDrop();
         setupTemperatureToggle();
         setupDeliveryOptions();
         setupSizeOptions();
         setupMixToggle();
+        checkDiscounts();
+        updateTotalCost();
+        updateCupSizeVisual();
+        setupPresetMenu();
+        
+        // Multiple drinks feature - optional, don't break if it fails
+        setTimeout(() => {
+            try {
+                if (document.getElementById('order-drinks-list')) {
+                    updateOrderDrinksList();
+                    updateAddDrinkButton();
+                }
+            } catch (e) {
+                console.warn('Multiple drinks feature initialization failed:', e);
+            }
+        }, 500);
+        
+        // Check for reorder parameter
+        const reorderData = urlParams.get('reorder');
+        if (reorderData) {
+            try {
+                const ingredients = JSON.parse(decodeURIComponent(reorderData));
+                if (Array.isArray(ingredients)) {
+                    // If there are already drinks in the order, add this as a new drink
+                    if (orderDrinks && orderDrinks.length > 0 && orderDrinks.length < 4) {
+                        // Add the reordered drink directly to orderDrinks
+                        const drink = {
+                            id: Date.now(),
+                            ingredients: ingredients,
+                            size: 'medium', // Default size, user can change
+                            isIced: false,
+                            isMixed: false
+                        };
+                        orderDrinks.push(drink);
+                        
+                        // Save to sessionStorage
+                        try {
+                            sessionStorage.setItem('orderDrinks', JSON.stringify(orderDrinks));
+                        } catch (e) {
+                            console.warn('Error saving order drinks:', e);
+                        }
+                        
+                        updateOrderDrinksList();
+                        updateAddDrinkButton();
+                        displayMessage('Drink added to your order! You can continue building or submit.', 'success');
+                        // Clear the reorder parameter from URL
+                        window.history.replaceState({}, '', window.location.pathname);
+                    } else {
+                        // No existing drinks or max reached, load into current recipe
+                        currentRecipe = ingredients;
+                        updateCupVisual();
+                        updateRecipeDisplay();
+                        updateTotalCost();
+                    }
+                }
+            } catch (e) {
+                console.error('Error parsing reorder data:', e);
+            }
+        }
+        
+        // Initialize order drinks list if we restored from storage
+        if (orderDrinks.length > 0) {
+            setTimeout(() => {
+                updateOrderDrinksList();
+                updateAddDrinkButton();
+            }, 500);
+        }
+    }
+    
+    // Helper function to save order drinks to sessionStorage
+    function saveOrderDrinks() {
+        try {
+            sessionStorage.setItem('orderDrinks', JSON.stringify(orderDrinks));
+        } catch (e) {
+            console.warn('Error saving order drinks:', e);
+        }
+    }
+    
+    // Preset menu definitions
+    const presetMenus = {
+        'caramel-macchiato': {
+            name: 'Caramel Macchiato',
+            hot: true,
+            iced: true,
+            ingredients: [
+                {name: 'Vanilla Syrup', type: 'Flavor', price: 0.50, color: '#F5F5DC'},
+                {name: 'Whole Milk', type: 'Milk', price: 0.50, color: '#FFF8DC'},
+                {name: 'Espresso Shot', type: 'Base', price: 2.00, color: '#4A2C2A'},
+                {name: 'Caramel Syrup', type: 'Flavor', price: 0.50, color: '#D2691E'}
+            ]
+        },
+        'americano': {
+            name: 'Americano',
+            hot: true,
+            iced: false,
+            ingredients: [
+                {name: 'Espresso Shot', type: 'Base', price: 2.00, color: '#4A2C2A'},
+                {name: 'Extra Shot', type: 'Base', price: 1.00, color: '#3D1F1D'},
+                {name: 'Water', type: 'Base', price: 0.00, color: '#ADD8E6'}
+            ]
+        },
+        'latte': {
+            name: 'Latte',
+            hot: true,
+            iced: true,
+            ingredients: [
+                {name: 'Espresso Shot', type: 'Base', price: 2.00, color: '#4A2C2A'},
+                {name: 'Whole Milk', type: 'Milk', price: 0.50, color: '#FFF8DC'}
+            ]
+        },
+        'mocha': {
+            name: 'Mocha',
+            hot: true,
+            iced: true,
+            ingredients: [
+                {name: 'Espresso Shot', type: 'Base', price: 2.00, color: '#4A2C2A'},
+                {name: 'Chocolate Syrup', type: 'Flavor', price: 0.75, color: '#6B4423'},
+                {name: 'Whole Milk', type: 'Milk', price: 0.50, color: '#FFF8DC'}
+            ]
+        },
+        'matcha': {
+            name: 'Matcha',
+            hot: true,
+            iced: true,
+            ingredients: [
+                {name: 'Water', type: 'Base', price: 0.00, color: '#ADD8E6'},
+                {name: 'Matcha Syrup', type: 'Flavor', price: 1.00, color: '#98FB98'}
+            ]
+        },
+        'katelyns-special': {
+            name: "Katelyn's Special",
+            hot: true,
+            iced: true,
+            ingredients: [
+                {name: 'Espresso Shot', type: 'Base', price: 2.00, color: '#4A2C2A'},
+                {name: 'Extra Shot', type: 'Base', price: 1.00, color: '#3D1F1D'},
+                {name: 'Whole Milk', type: 'Milk', price: 0.50, color: '#FFF8DC'},
+                {name: 'Strawberry Syrup', type: 'Flavor', price: 0.75, color: '#FF69B4'},
+                {name: 'Vanilla Syrup', type: 'Flavor', price: 0.50, color: '#F5F5DC'},
+                {name: 'Sprinkles', type: 'Topping', price: 0.50, color: 'transparent'},
+                {name: 'Whipped Cream', type: 'Topping', price: 0.25, color: '#FFFFFF'}
+            ]
+        }
+    };
+    
+    function setupPresetMenu() {
+        const menuBtn = document.getElementById('menu-btn');
+        const menuModal = document.getElementById('preset-menu-modal');
+        const closeBtn = document.getElementById('close-menu-btn');
+        const menuItems = document.getElementById('preset-menu-items');
+        
+        // Populate menu items
+        menuItems.innerHTML = '';
+        Object.keys(presetMenus).forEach(key => {
+            const preset = presetMenus[key];
+            const item = document.createElement('div');
+            item.className = 'preset-menu-item p-4 bg-gradient-to-br from-pink-50 to-red-50 rounded-xl border-2 border-pink-200 cursor-pointer hover:border-pink-400 transition';
+            item.innerHTML = `
+                <div class="font-bold text-lg mb-2">${preset.name}</div>
+                <div class="text-sm text-gray-600 mb-2">
+                    ${preset.hot ? '🔥 Hot' : ''} ${preset.hot && preset.iced ? '|' : ''} ${preset.iced ? '🧊 Iced' : ''}
+                </div>
+                <button class="w-full px-4 py-2 bg-gradient-to-r from-pink-500 to-red-500 text-white rounded-lg font-bold hover:shadow-lg transition" onclick="applyPreset('${key}')">
+                    Add to Order
+                </button>
+            `;
+            menuItems.appendChild(item);
+        });
+        
+        menuBtn.addEventListener('click', () => {
+            menuModal.classList.remove('hidden');
+        });
+        
+        closeBtn.addEventListener('click', () => {
+            menuModal.classList.add('hidden');
+        });
+        
+        menuModal.addEventListener('click', (e) => {
+            if (e.target === menuModal) {
+                menuModal.classList.add('hidden');
+            }
+        });
+    }
+    
+    function applyPreset(presetKey) {
+        const preset = presetMenus[presetKey];
+        if (!preset) return;
+        
+        // Set temperature based on preset
+        if (preset.hot && !preset.iced) {
+            isIced = false;
+            document.querySelectorAll('.temp-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.temp === 'hot') btn.classList.add('active');
+            });
+        } else if (preset.iced && !preset.hot) {
+            isIced = true;
+            document.querySelectorAll('.temp-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.temp === 'iced') btn.classList.add('active');
+            });
+        }
+        
+        // Clear current recipe and add preset ingredients
+        currentRecipe = [...preset.ingredients];
+        
+        // Add ice if iced
+        if (isIced && !currentRecipe.some(i => i.name === 'Ice')) {
+            currentRecipe.push({name: 'Ice', type: 'Topping', price: 0, color: 'transparent'});
+        }
+        
+        updateCupVisual();
+        updateRecipeDisplay();
+        updateTotalCost();
+        updateAddDrinkButton();
+        
+        // Close modal
+        document.getElementById('preset-menu-modal').classList.add('hidden');
+        displayMessage(`Added ${preset.name} to your order!`, 'success');
+    }
+    
+    function checkDiscounts() {
+        // Show birthday alert if applicable
+        if (hasBirthdayDiscount) {
+            showBirthdayAlert();
+        } else if (isBirthdayButRedeemed) {
+            showBirthdayRedeemedAlert();
+        }
+        
+        // Set size if redemption discount and disable other sizes
+        if (hasRedeemDiscount && redeemSize) {
+            document.querySelectorAll('.size-option').forEach(opt => {
+                if (opt.dataset.size === redeemSize) {
+                    document.querySelectorAll('.size-option').forEach(o => o.classList.remove('selected'));
+                    opt.classList.add('selected');
+                    drinkSize = redeemSize;
+                } else {
+                    // Disable other sizes when redeemed
+                    opt.classList.add('disabled');
+                }
+            });
+        }
+    }
+    
+    function showBirthdayAlert() {
+        const alertHtml = `
+            <div id="birthday-alert" class="birthday-alert-banner">
+                🎉 Happy Birthday! 🎉<br>
+                Enjoy a FREE drink on us today! Your order will be discounted.
+            </div>
+        `;
+        const header = document.querySelector('.text-center.mb-8');
+        if (header) {
+            header.insertAdjacentHTML('afterend', alertHtml);
+            setTimeout(() => {
+                const alert = document.getElementById('birthday-alert');
+                if (alert) alert.style.opacity = '1';
+            }, 100);
+        }
     }
     
     function setupTemperatureToggle() {
@@ -404,6 +912,7 @@
                 updateCupVisual();
                 updateRecipeDisplay();
                 updateTotalCost();
+                updateAddDrinkButton();
             });
         });
     }
@@ -411,13 +920,26 @@
     function setupSizeOptions() {
         document.querySelectorAll('.size-option').forEach(option => {
             option.addEventListener('click', function() {
+                // Don't allow size change if redemption discount is active
+                if (hasRedeemDiscount && this.dataset.size !== redeemSize) {
+                    return;
+                }
                 document.querySelectorAll('.size-option').forEach(o => o.classList.remove('selected'));
                 this.classList.add('selected');
                 drinkSize = this.dataset.size;
                 updateTotalCost();
                 updateCupVisual(); // Update cup size if needed
+                updateCupSizeVisual(); // Update cup container size
             });
         });
+    }
+    
+    function updateCupSizeVisual() {
+        const cupContainer = document.querySelector('.cup-container');
+        if (cupContainer) {
+            cupContainer.classList.remove('size-small', 'size-medium', 'size-large');
+            cupContainer.classList.add(`size-${drinkSize}`);
+        }
     }
     
     function setupMixToggle() {
@@ -469,18 +991,59 @@
                 updateCupVisual();
                 updateRecipeDisplay();
                 updateTotalCost();
+                updateAddDrinkButton(); // Enable button when ingredients added
             }
         });
 
         draggables.forEach(draggable => {
             draggable.addEventListener('dragstart', (e) => {
                 const data = JSON.parse(draggable.dataset.ingredient);
+                
+                // Validate extra shot - must have espresso first
+                if (data.name === 'Extra Shot') {
+                    const hasEspresso = currentRecipe.some(ing => ing.name === 'Espresso Shot');
+                    if (!hasEspresso) {
+                        e.preventDefault();
+                        displayMessage('You must add Espresso Shot first before adding Extra Shot!', 'error');
+                        return;
+                    }
+                }
+                
+                // Create a custom drag image that shows the ingredient card (not just emoji)
+                const dragImage = draggable.cloneNode(true);
+                dragImage.style.position = 'absolute';
+                dragImage.style.top = '-1000px';
+                dragImage.style.opacity = '0.8';
+                dragImage.style.pointerEvents = 'none';
+                document.body.appendChild(dragImage);
+                e.dataTransfer.setDragImage(dragImage, draggable.offsetWidth / 2, draggable.offsetHeight / 2);
+                
+                // Clean up the drag image after a short delay
+                setTimeout(() => {
+                    document.body.removeChild(dragImage);
+                }, 0);
+                
                 e.dataTransfer.setData("application/json", JSON.stringify(data));
                 e.dataTransfer.effectAllowed = "copy";
             });
         });
+        
+        // Also validate on click (for better UX)
+        draggables.forEach(draggable => {
+            draggable.addEventListener('click', function() {
+                const data = JSON.parse(this.dataset.ingredient);
+                if (data.name === 'Extra Shot') {
+                    const hasEspresso = currentRecipe.some(ing => ing.name === 'Espresso Shot');
+                    if (!hasEspresso) {
+                        displayMessage('You must add Espresso Shot first before adding Extra Shot!', 'error');
+                        return;
+                    }
+                }
+            });
+        });
 
         document.getElementById('submit-order-btn').addEventListener('click', submitOrder);
+        document.getElementById('review-order-btn').addEventListener('click', showReviewModal);
         document.getElementById('clear-cup-btn').addEventListener('click', clearCup);
     }
     
@@ -488,11 +1051,13 @@
         const cupLayers = document.getElementById('cup-layers');
         cupLayers.innerHTML = '';
         
-        // Remove whipped cream and sprinkles from previous render
+        // Remove whipped cream, sprinkles, chocolate chips, cinnamon, and ice from previous render
         const existingWhipped = document.querySelectorAll('.whipped-cream');
         const existingSprinkles = document.querySelectorAll('.sprinkle');
+        const existingChips = document.querySelectorAll('.chocolate-chip');
+        const existingCinnamon = document.querySelectorAll('.cinnamon-speck');
         const existingIce = document.querySelectorAll('.ice-cube');
-        [...existingWhipped, ...existingSprinkles, ...existingIce].forEach(el => el.remove());
+        [...existingWhipped, ...existingSprinkles, ...existingChips, ...existingCinnamon, ...existingIce].forEach(el => el.remove());
         
         if (currentRecipe.length === 0) {
             const emptyLayer = document.createElement('div');
@@ -510,10 +1075,12 @@
         const bases = currentRecipe.filter(i => i.type === 'Base');
         const milks = currentRecipe.filter(i => i.type === 'Milk');
         const flavors = currentRecipe.filter(i => i.type === 'Flavor');
-        const toppings = currentRecipe.filter(i => i.type === 'Topping' && i.name !== 'Ice' && i.name !== 'Whipped Cream' && i.name !== 'Sprinkles');
+        const toppings = currentRecipe.filter(i => i.type === 'Topping' && i.name !== 'Ice' && i.name !== 'Whipped Cream' && i.name !== 'Sprinkles' && i.name !== 'Chocolate Chips' && i.name !== 'Cinnamon');
         const hasIce = currentRecipe.some(i => i.name === 'Ice');
         const hasWhippedCream = currentRecipe.some(i => i.name === 'Whipped Cream');
         const hasSprinkles = currentRecipe.some(i => i.name === 'Sprinkles');
+        const hasChocolateChips = currentRecipe.some(i => i.name === 'Chocolate Chips');
+        const hasCinnamon = currentRecipe.some(i => i.name === 'Cinnamon');
         
         let currentBottom = 0;
         
@@ -560,6 +1127,16 @@
         // Render sprinkles on top of whipped cream
         if (hasSprinkles) {
             renderSprinkles(cupLayers, hasWhippedCream);
+        }
+        
+        // Render chocolate chips on top (like sprinkles)
+        if (hasChocolateChips) {
+            renderChocolateChips(cupLayers, hasWhippedCream);
+        }
+        
+        // Render cinnamon specks on top (like sprinkles)
+        if (hasCinnamon) {
+            renderCinnamon(cupLayers, hasWhippedCream);
         }
     }
     
@@ -701,12 +1278,224 @@
         }
     }
     
+    function showBirthdayRedeemedAlert() {
+        const alertHtml = `
+            <div id="birthday-redeemed-alert" class="birthday-alert-banner" style="background: linear-gradient(135deg, #FFE5E5, #FFD4D4); border: 2px solid #FFB6C1;">
+                🎂 Happy Birthday! 🎂<br>
+                Your free birthday drink has already been redeemed today. Enjoy your next order!
+            </div>
+        `;
+        const header = document.querySelector('.text-center.mb-8');
+        if (header) {
+            header.insertAdjacentHTML('afterend', alertHtml);
+            setTimeout(() => {
+                const alert = document.getElementById('birthday-redeemed-alert');
+                if (alert) alert.style.opacity = '1';
+            }, 100);
+        }
+    }
+    
+    function renderChocolateChips(container, onWhippedCream) {
+        const numChips = 12;
+        const topPosition = onWhippedCream ? -5 : 5;
+        
+        for (let i = 0; i < numChips; i++) {
+            const chip = document.createElement('div');
+            chip.className = 'chocolate-chip';
+            // Create a brown triangle with rounded vertices using CSS
+            chip.style.position = 'absolute';
+            chip.style.width = '8px';
+            chip.style.height = '8px';
+            chip.style.zIndex = '30';
+            chip.style.left = `${15 + Math.random() * 70}%`;
+            chip.style.top = `${topPosition + Math.random() * 15}%`;
+            chip.style.transform = `rotate(${Math.random() * 360}deg) scale(${0.8 + Math.random() * 0.4})`;
+            chip.style.animation = `float ${2 + Math.random() * 2}s ease-in-out infinite`;
+            chip.style.animationDelay = `${Math.random() * 1}s`;
+            chip.style.filter = 'drop-shadow(1px 1px 2px rgba(0,0,0,0.3))';
+            
+            // Create brown triangle shape with rounded vertices using clip-path
+            chip.style.clipPath = 'polygon(50% 0%, 0% 100%, 100% 100%)';
+            chip.style.backgroundColor = '#654321'; // Brown chocolate color
+            chip.style.borderRadius = '25%'; // Rounded vertices
+            chip.style.width = '10px';
+            chip.style.height = '10px';
+            
+            container.appendChild(chip);
+        }
+    }
+    
+    function renderCinnamon(container, onWhippedCream) {
+        const numSpecks = 20; // More specks for cinnamon
+        const topPosition = onWhippedCream ? -5 : 5;
+        const cinnamonColor = '#D2691E'; // Cinnamon color
+        
+        for (let i = 0; i < numSpecks; i++) {
+            const speck = document.createElement('div');
+            speck.className = 'cinnamon-speck';
+            speck.style.position = 'absolute';
+            speck.style.width = '3px';
+            speck.style.height = '3px';
+            speck.style.zIndex = '30';
+            speck.style.left = `${15 + Math.random() * 70}%`;
+            speck.style.top = `${topPosition + Math.random() * 15}%`;
+            speck.style.transform = `rotate(${Math.random() * 360}deg) scale(${0.5 + Math.random() * 0.5})`;
+            speck.style.animation = `float ${2 + Math.random() * 2}s ease-in-out infinite`;
+            speck.style.animationDelay = `${Math.random() * 1}s`;
+            speck.style.filter = 'drop-shadow(1px 1px 1px rgba(0,0,0,0.3))';
+            
+            // Create small cinnamon-colored circular specks
+            speck.style.backgroundColor = cinnamonColor;
+            speck.style.borderRadius = '50%';
+            
+            container.appendChild(speck);
+        }
+    }
+    
     function clearCup() {
         currentRecipe = [];
         updateCupVisual();
         updateRecipeDisplay();
         updateTotalCost();
+        updateAddDrinkButton();
     }
+    
+    
+    function removeDrinkFromOrder(drinkId) {
+        orderDrinks = orderDrinks.filter(d => d.id !== drinkId);
+        saveOrderDrinks();
+        updateOrderDrinksList();
+        updateAddDrinkButton();
+        displayMessage('Drink removed from order', 'success');
+    }
+    
+    function updateOrderDrinksList() {
+        try {
+            const list = document.getElementById('order-drinks-list');
+            const count = document.getElementById('drink-count');
+            
+            if (!list || !count) {
+                return; // Elements don't exist yet, skip
+            }
+            
+            count.textContent = `${orderDrinks.length} / 4`;
+            
+            // Enable/disable review order button
+            const reviewBtn = document.getElementById('review-order-btn');
+            if (reviewBtn) {
+                reviewBtn.disabled = orderDrinks.length === 0;
+            }
+            
+            if (orderDrinks.length === 0) {
+                list.innerHTML = '<p class="text-sm text-gray-500 text-center py-2">No drinks added yet. Build your drink above!</p>';
+                return;
+            }
+            
+            list.innerHTML = '';
+            // Find which drink has the redemption discount
+            let redemptionDrinkIndex = -1;
+            if (hasRedeemDiscount && redeemSize) {
+                for (let i = 0; i < orderDrinks.length; i++) {
+                    if (orderDrinks[i].size.toLowerCase() === redeemSize.toLowerCase()) {
+                        redemptionDrinkIndex = i;
+                        break;
+                    }
+                }
+            }
+            
+            orderDrinks.forEach((drink, index) => {
+                // Calculate subtotal for this drink
+                const sizeMultipliers = {
+                    'small': 0.85,
+                    'medium': 1.0,
+                    'large': 1.25
+                };
+                const baseTotal = drink.ingredients.reduce((sum, item) => sum + item.price, 0);
+                const sizeMultiplier = sizeMultipliers[drink.size] || 1.0;
+                const subtotal = baseTotal * sizeMultiplier;
+                
+                // Check if this drink is discounted
+                const isDiscounted = (index === redemptionDrinkIndex && hasRedeemDiscount) || 
+                                     (index === 0 && hasBirthdayDiscount);
+                const discountTypeText = (index === redemptionDrinkIndex && hasRedeemDiscount) ? '⭐ Redeemed' : 
+                                         (index === 0 && hasBirthdayDiscount) ? '🎂 Birthday' : '';
+                
+                const item = document.createElement('div');
+                item.className = 'flex justify-between items-center p-2 bg-white rounded-lg border border-pink-200';
+                const ingredientNames = drink.ingredients.map(i => i.name).join(', ');
+                item.innerHTML = `
+                    <div class="flex-1">
+                        <div class="font-semibold text-sm">Drink ${index + 1}: ${drink.size} ${drink.isIced ? '🧊' : '🔥'} ${discountTypeText ? `| ${discountTypeText}` : ''}</div>
+                        <div class="text-xs text-gray-600 truncate">${ingredientNames}</div>
+                        <div class="text-xs font-bold mt-1">
+                            ${isDiscounted ? `<span style="text-decoration: line-through; opacity: 0.5; color: #666;">$${subtotal.toFixed(2)}</span> <span style="color: #10B981;">FREE</span>` : `<span style="color: #10B981;">$${subtotal.toFixed(2)}</span>`}
+                        </div>
+                    </div>
+                    <button onclick="removeDrinkFromOrder(${drink.id})" class="ml-2 px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600">
+                        ✕
+                    </button>
+                `;
+                list.appendChild(item);
+            });
+        } catch (e) {
+            console.warn('updateOrderDrinksList error:', e);
+        }
+    }
+    
+    function updateAddDrinkButton() {
+        const btn = document.getElementById('add-drink-btn');
+        if (!btn) return; // Button doesn't exist yet
+        
+        const hasIngredients = Array.isArray(currentRecipe) && currentRecipe && currentRecipe.length > 0;
+        const canAddMore = Array.isArray(orderDrinks) && orderDrinks.length < 4;
+        
+        // Enable button if we have ingredients and can add more drinks
+        if (hasIngredients && canAddMore) {
+            btn.disabled = false;
+        } else {
+            btn.disabled = true;
+        }
+    }
+    
+    // Make addDrinkToOrder globally accessible
+    window.addDrinkToOrder = function() {
+        if (!Array.isArray(currentRecipe) || currentRecipe.length === 0) {
+            displayMessage('Please add ingredients to your drink first!', 'error');
+            return;
+        }
+        
+        if (!Array.isArray(orderDrinks)) {
+            orderDrinks = [];
+        }
+        
+        if (orderDrinks.length >= 4) {
+            displayMessage('You can only add up to 4 drinks per order!', 'error');
+            return;
+        }
+        
+        // Add current drink to order
+        const drink = {
+            id: Date.now(),
+            ingredients: [...currentRecipe],
+            size: drinkSize,
+            isIced: isIced,
+            isMixed: isMixed
+        };
+        
+        orderDrinks.push(drink);
+        
+        // Save to sessionStorage
+        saveOrderDrinks();
+        
+        // Clear current recipe for next drink
+        currentRecipe = [];
+        updateCupVisual();
+        updateRecipeDisplay();
+        updateTotalCost();
+        updateOrderDrinksList();
+        updateAddDrinkButton();
+        displayMessage(`Drink ${orderDrinks.length} added to order!`, 'success');
+    };
     
     function updateRecipeDisplay() {
         const recipeList = document.getElementById('recipe-list');
@@ -740,11 +1529,84 @@
             'large': 1.25
         };
         
+        // Calculate current drink cost (this is the SUBTOTAL)
         const baseTotal = currentRecipe.reduce((sum, item) => sum + item.price, 0);
         const sizeMultiplier = sizeMultipliers[drinkSize] || 1.0;
-        const subtotal = baseTotal * sizeMultiplier;
+        let currentDrinkCost = baseTotal * sizeMultiplier;
+        
+        // Calculate discount for current drink
+        let currentDrinkDiscount = 0;
+        let discountType = '';
+        
+        // Find if redemption has been used in orderDrinks
+        let redemptionUsedIndex = -1;
+        if (hasRedeemDiscount && redeemSize) {
+            for (let i = 0; i < orderDrinks.length; i++) {
+                if (orderDrinks[i].size.toLowerCase() === redeemSize.toLowerCase()) {
+                    redemptionUsedIndex = i;
+                    break;
+                }
+            }
+        }
+        
+        // Current drink discount applies if:
+        // 1. No drinks in order yet AND has discount
+        // 2. OR redemption not used yet AND current drink matches redemption size
+        if (orderDrinks.length === 0) {
+            if (hasBirthdayDiscount && currentDrinkCost > 0) {
+                currentDrinkDiscount = currentDrinkCost;
+                discountType = 'Birthday Discount';
+            } else if (hasRedeemDiscount && drinkSize.toLowerCase() === redeemSize.toLowerCase() && currentDrinkCost > 0) {
+                currentDrinkDiscount = currentDrinkCost;
+                discountType = 'Redeemed Reward';
+            }
+        } else if (hasRedeemDiscount && drinkSize.toLowerCase() === redeemSize.toLowerCase() && redemptionUsedIndex === -1 && currentDrinkCost > 0) {
+            currentDrinkDiscount = currentDrinkCost;
+            discountType = 'Redeemed Reward';
+        }
+        
+        const currentDrinkSubtotal = currentDrinkCost - currentDrinkDiscount;
+        
+        // Calculate TOTAL = all drinks in order + current drink + delivery
+        let totalAllDrinks = 0;
+        let totalDiscountAmount = 0;
+        let orderDiscountType = '';
+        
+        // Find which drink in orderDrinks has the redemption discount
+        let redemptionDrinkIndex = -1;
+        if (hasRedeemDiscount && redeemSize) {
+            for (let i = 0; i < orderDrinks.length; i++) {
+                if (orderDrinks[i].size.toLowerCase() === redeemSize.toLowerCase()) {
+                    redemptionDrinkIndex = i;
+                    break;
+                }
+            }
+        }
+        
+        // Calculate cost of all drinks already in order
+        orderDrinks.forEach((drink, index) => {
+            const drinkBaseTotal = drink.ingredients.reduce((sum, item) => sum + item.price, 0);
+            const drinkSizeMultiplier = sizeMultipliers[drink.size] || 1.0;
+            const drinkCost = drinkBaseTotal * drinkSizeMultiplier;
+            
+            // Check if this drink is discounted
+            const isDiscounted = (index === redemptionDrinkIndex && hasRedeemDiscount) || 
+                                 (index === 0 && hasBirthdayDiscount);
+            
+            if (isDiscounted) {
+                totalDiscountAmount += drinkCost;
+                orderDiscountType = index === redemptionDrinkIndex ? 'Redeemed Reward' : 'Birthday Discount';
+            } else {
+                totalAllDrinks += drinkCost;
+            }
+        });
+        
+        // Add current drink to total (already discounted if applicable)
+        totalAllDrinks += currentDrinkSubtotal;
+        totalDiscountAmount += currentDrinkDiscount;
+        
         const deliveryFee = deliveryOption === 'delivery' ? 2.50 : 0;
-        const finalTotal = subtotal + deliveryFee;
+        const finalTotal = totalAllDrinks + deliveryFee;
         
         const sizePrice = drinkSize === 'small' ? 'Small (+$0)' : 
                          drinkSize === 'medium' ? 'Medium (+$0)' : 
@@ -752,7 +1614,8 @@
         
         totalCostElement.innerHTML = `
             <div class="text-sm text-gray-600">Size: ${sizePrice}</div>
-            <div class="text-lg">Subtotal: $${subtotal.toFixed(2)}</div>
+            <div class="text-lg">Subtotal: $${currentDrinkCost.toFixed(2)}</div>
+            ${currentDrinkDiscount > 0 ? `<div class="text-sm text-green-600 font-bold">${discountType}: -$${currentDrinkDiscount.toFixed(2)}</div>` : ''}
             ${deliveryFee > 0 ? `<div class="text-sm text-gray-600">Delivery: $${deliveryFee.toFixed(2)}</div>` : ''}
             <div class="text-2xl font-extrabold text-[#FF6B6B] mt-1">Total: $${finalTotal.toFixed(2)}</div>
         `;
@@ -777,85 +1640,210 @@
     }
 
     async function submitOrder() {
-        if (currentRecipe.length === 0) {
-            displayMessage("Please add some ingredients to your cup first! 🧋", 'error');
-            return;
-        }
-
         const submitBtn = document.getElementById('submit-order-btn');
         submitBtn.disabled = true;
         submitBtn.textContent = 'Processing... ⏳';
 
         try {
-            // Calculate final price with size multiplier
-            const sizeMultipliers = {
-                'small': 0.85,
-                'medium': 1.0,
-                'large': 1.25
-            };
-            const baseTotal = currentRecipe.reduce((sum, item) => sum + item.price, 0);
-            const sizeMultiplier = sizeMultipliers[drinkSize] || 1.0;
+            // If no drinks in order array, add current drink
+            if (orderDrinks.length === 0 && currentRecipe.length > 0) {
+                orderDrinks.push({
+                    id: Date.now(),
+                    ingredients: [...currentRecipe],
+                    size: drinkSize,
+                    isIced: isIced,
+                    isMixed: isMixed
+                });
+            }
             
-            // Create order data with size info
-            const orderData = {
-                ingredients: currentRecipe,
-                size: drinkSize,
-                isIced: isIced,
-                isMixed: isMixed,
-                deliveryOption: deliveryOption
-            };
-            
-            console.log('Submitting order:', orderData); // Debug log
-            
-            const response = await fetch('/api/coffee/saveorder', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include', // Important: include cookies for auth
-                body: JSON.stringify(currentRecipe) // Send ingredients for now
-            });
-
-            console.log('Response status:', response.status); // Debug log
-            
-            let result;
-            const responseText = await response.text();
-            console.log('Response text:', responseText); // Debug log
-            
-            try {
-                result = JSON.parse(responseText);
-            } catch (jsonError) {
-                console.error('Failed to parse JSON:', responseText);
-                displayMessage('Order failed: Server returned an invalid response. Status: ' + response.status, 'error');
+            if (orderDrinks.length === 0) {
+                displayMessage('Please add at least one drink to your order!', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Order 🚀';
                 return;
             }
-
-            if (response.ok) {
-                displayMessage('🎉 Order placed! Your drink is being prepared! ' + (result.message || ''), 'success');
-                loyaltyPointsElement.textContent = `${result.newPoints || 0} ⭐`;
+            
+            // Submit each drink as a separate order
+            let totalPoints = 0;
+            let totalCost = 0;
+            let lastOrderId = 0;
+            let hasDiscount = false;
+            let discountType = '';
+            let redemptionApplied = false; // Track if redemption has been applied
+            
+            for (let i = 0; i < orderDrinks.length; i++) {
+                const drink = orderDrinks[i];
                 
-                // Reload points to make sure we have latest
-                await loadUserPoints();
+                // Create order data
+                const orderData = {
+                    ingredients: drink.ingredients,
+                    size: drink.size,
+                    isIced: drink.isIced,
+                    isMixed: drink.isMixed,
+                    deliveryOption: i === 0 ? deliveryOption : 'pickup' // Only charge delivery once
+                };
                 
-                // Clear the cup
-                clearCup();
-            } else if (response.status === 401) {
-                displayMessage('You must be logged in to place an order. Please log in and try again! 🔐', 'error');
-                // Redirect to login after a moment
-                setTimeout(() => {
-                    window.location.href = '/Identity/Account/Login';
-                }, 2000);
-            } else {
-                displayMessage('Order failed: ' + (result.message || `Status ${response.status}. Please try again.`), 'error');
-                console.error('API Error:', result, 'Status:', response.status);
+                // Apply redemption discount to the FIRST drink that matches the redeemed size
+                let orderUrl = '/api/coffee/saveorder';
+                if (hasRedeemDiscount && redeemSize && !redemptionApplied && drink.size.toLowerCase() === redeemSize.toLowerCase()) {
+                    orderUrl += `?redeem=${redeemSize}`;
+                    redemptionApplied = true;
+                }
+                
+                const response = await fetch(orderUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(orderData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    totalPoints += result.pointsEarned || 0;
+                    
+                    // Parse the actual cost (may be 0 if discounted) - backend returns formatted string like "$10.50" or "$0.00"
+                    let costString = result.totalCost || '$0.00';
+                    costString = costString.replace(/[$,]/g, '').trim();
+                    const cost = parseFloat(costString) || 0;
+                    totalCost += cost;
+                    
+                    if (result.hasDiscount && result.discountType) {
+                        hasDiscount = true;
+                        discountType = result.discountType || '';
+                    }
+                    
+                    lastOrderId = result.orderId || Date.now();
+                } else {
+                    throw new Error(result.message || `Order ${i + 1} failed`);
+                }
             }
+            
+            // Clear order drinks from sessionStorage after successful order
+            try {
+                sessionStorage.removeItem('orderDrinks');
+            } catch (e) {
+                console.warn('Error clearing order drinks:', e);
+            }
+            
+            // All orders successful - redirect to completion page
+            window.location.href = `/Home/OrderComplete?orderId=${lastOrderId}&points=${totalPoints}&pointsEarned=${totalPoints}&total=$${totalCost.toFixed(2)}&hasDiscount=${hasDiscount}&discountType=${discountType}`;
         } catch (error) {
             console.error('Submit error:', error);
-            displayMessage('A network error occurred: ' + error.message + '. Please check your connection and try again. 🌐', 'error');
+            displayMessage('Order failed: ' + error.message + '. Please try again. 🌐', 'error');
         } finally {
-            submitBtn.disabled = false;
+            submitBtn.disabled = orderDrinks.length === 0;
             submitBtn.textContent = 'Submit Order 🚀';
         }
+    }
+    
+    function calculateDrinkCost(drink) {
+        const sizeMultipliers = {
+            'small': 0.85,
+            'medium': 1.0,
+            'large': 1.25
+        };
+        const baseTotal = drink.ingredients.reduce((sum, item) => sum + item.price, 0);
+        const sizeMultiplier = sizeMultipliers[drink.size] || 1.0;
+        return baseTotal * sizeMultiplier;
+    }
+    
+    function showReviewModal() {
+        if (orderDrinks.length === 0) {
+            displayMessage('Please add at least one drink to your order first!', 'error');
+            return;
+        }
+        
+        const modal = document.getElementById('review-order-modal');
+        const body = document.getElementById('review-order-body');
+        
+        let html = '';
+        let grandTotal = 0;
+        let grandTotalBeforeDiscount = 0;
+        let totalDiscount = 0;
+        const deliveryFee = deliveryOption === 'delivery' ? 2.50 : 0;
+        
+        // Check if redemption discount should apply
+        let redemptionIndex = -1;
+        if (hasRedeemDiscount && redeemSize) {
+            // Find first drink that matches the redeemed size
+            for (let i = 0; i < orderDrinks.length; i++) {
+                if (orderDrinks[i].size.toLowerCase() === redeemSize.toLowerCase()) {
+                    redemptionIndex = i;
+                    break;
+                }
+            }
+        }
+        
+        // Calculate total for all drinks (only charge delivery once)
+        orderDrinks.forEach((drink, index) => {
+            const drinkCost = calculateDrinkCost(drink);
+            grandTotalBeforeDiscount += drinkCost;
+            
+            // Check if this drink gets the redemption discount
+            const isDiscounted = (index === redemptionIndex && hasRedeemDiscount) || 
+                                 (index === 0 && hasBirthdayDiscount);
+            const finalDrinkCost = isDiscounted ? 0 : drinkCost;
+            if (isDiscounted) {
+                totalDiscount += drinkCost;
+            }
+            grandTotal += finalDrinkCost;
+            
+            const ingredientList = drink.ingredients.map(ing => 
+                `<li class="review-ingredient-item">${ing.name}${ing.price > 0 ? ` ($${ing.price.toFixed(2)})` : ''}</li>`
+            ).join('');
+            
+            const discountTypeText = (index === redemptionIndex && hasRedeemDiscount) ? '⭐ Redeemed' : 
+                                     (index === 0 && hasBirthdayDiscount) ? '🎂 Birthday' : '';
+            
+            html += `
+                <div class="review-drink-item">
+                    <div class="review-drink-header">
+                        <div>
+                            <div class="review-drink-title">Drink ${index + 1}: ${drink.size.charAt(0).toUpperCase() + drink.size.slice(1)} ${drink.isIced ? '🧊 Iced' : '🔥 Hot'}</div>
+                            <div class="review-drink-details">${drink.isMixed ? '🔀 Mixed' : 'Layered'} ${discountTypeText ? `| ${discountTypeText}` : ''}</div>
+                        </div>
+                        <div class="review-drink-cost">
+                            ${isDiscounted ? `<span style="text-decoration: line-through; opacity: 0.5;">$${drinkCost.toFixed(2)}</span><br><span style="color: #10B981;">FREE</span>` : `$${drinkCost.toFixed(2)}`}
+                        </div>
+                    </div>
+                    <ul class="review-ingredient-list">
+                        ${ingredientList}
+                    </ul>
+                </div>
+            `;
+        });
+        
+        grandTotalBeforeDiscount += deliveryFee;
+        grandTotal += deliveryFee;
+        
+        html += `
+            <div class="review-total-section">
+                <div style="margin-bottom: 0.5rem;">
+                    <div style="font-size: 0.9rem; opacity: 0.8;">Subtotal: $${grandTotalBeforeDiscount.toFixed(2)}</div>
+                    ${totalDiscount > 0 ? `<div style="font-size: 0.9rem; color: #10B981;">Discount: -$${totalDiscount.toFixed(2)}</div>` : ''}
+                    ${deliveryFee > 0 ? `<div style="font-size: 0.9rem; opacity: 0.8;">Delivery: $${deliveryFee.toFixed(2)}</div>` : ''}
+                </div>
+                <div class="review-total-label">Order Total</div>
+                <div class="review-total-amount">$${grandTotal.toFixed(2)}</div>
+            </div>
+        `;
+        
+        body.innerHTML = html;
+        modal.style.display = 'block';
+    }
+    
+    function closeReviewModal() {
+        const modal = document.getElementById('review-order-modal');
+        modal.style.display = 'none';
+    }
+    
+    function confirmReviewOrder() {
+        closeReviewModal();
+        // Trigger the submit order function
+        submitOrder();
     }
 
     function displayMessage(message, type) {
@@ -897,11 +1885,68 @@
 
     <!-- Message Box -->
     <div id="message-box" class="hidden max-w-2xl mx-auto text-center transition duration-500"></div>
+    
+    <style>
+        .birthday-alert-banner {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 20px;
+            margin: 1rem auto 2rem;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 700;
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+            animation: pulse-birthday 2s infinite;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            max-width: 600px;
+        }
+        
+        .birthday-alert-banner {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 20px;
+            margin: 1rem auto 2rem;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 700;
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+            animation: pulse-birthday 2s infinite;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            max-width: 600px;
+        }
+        
+        @@keyframes pulse-birthday {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+    </style>
 
     <div class="flex flex-col lg:flex-row gap-6">
         <!-- Left: Ingredients Menu -->
         <div class="lg:w-1/3 p-6 bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl h-fit sticky top-4 max-h-[85vh] flex flex-col">
-            <h2 class="text-3xl font-bold text-center mb-6" style="color: #FF6B6B;">✨ Ingredients ✨</h2>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-3xl font-bold" style="color: #FF6B6B;">✨ Ingredients ✨</h2>
+                <button id="menu-btn" class="px-4 py-2 bg-gradient-to-r from-pink-500 to-red-500 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition">
+                    📋 Menu
+                </button>
+            </div>
+            
+            <!-- Preset Menu Modal -->
+            <div id="preset-menu-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                <div class="bg-white rounded-3xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-2xl font-bold" style="color: #FF6B6B;">📋 Preset Menu</h3>
+                        <button id="close-menu-btn" class="text-2xl">&times;</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="preset-menu-items">
+                        <!-- Presets will be added here -->
+                    </div>
+                </div>
+            </div>
             
             <!-- Scrollable ingredients container -->
             <div class="flex-1 overflow-y-auto pr-2" style="max-height: calc(85vh - 200px);">
@@ -921,13 +1966,18 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div class="ingredient-card p-3 bg-gradient-to-br from-amber-100 to-amber-200 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
                              data-ingredient='{"name":"Espresso Shot", "type":"Base", "price":2.00, "color":"#4A2C2A"}'>
-                            <div class="text-3xl mb-1">☕</div>
+                            <div class="emoji-wrapper"><div class="text-3xl mb-1">☕</div></div>
                             <div class="text-xs font-bold">Espresso ($2.00)</div>
                         </div>
                         <div class="ingredient-card p-3 bg-gradient-to-br from-amber-100 to-amber-200 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
                              data-ingredient='{"name":"Extra Shot", "type":"Base", "price":1.00, "color":"#3D1F1D"}'>
-                            <div class="text-3xl mb-1">➕</div>
+                            <div class="emoji-wrapper"><div class="text-3xl mb-1">➕</div></div>
                             <div class="text-xs font-bold">Extra Shot ($1.00)</div>
+                        </div>
+                        <div class="ingredient-card p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
+                             data-ingredient='{"name":"Water", "type":"Base", "price":0.00, "color":"#ADD8E6"}'>
+                            <div class="emoji-wrapper"><div class="text-3xl mb-1">💧</div></div>
+                            <div class="text-xs font-bold">Water (Free)</div>
                         </div>
                     </div>
                 </div>
@@ -938,17 +1988,17 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div class="ingredient-card p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
                              data-ingredient='{"name":"Whole Milk", "type":"Milk", "price":0.50, "color":"#FFF8DC"}'>
-                            <div class="text-3xl mb-1">🥛</div>
+                            <div class="emoji-wrapper"><div class="text-3xl mb-1">🥛</div></div>
                             <div class="text-xs font-bold">Milk ($0.50)</div>
                         </div>
                         <div class="ingredient-card p-3 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
                              data-ingredient='{"name":"Oat Milk", "type":"Milk", "price":1.50, "color":"#F5DEB3"}'>
-                            <div class="text-3xl mb-1">🌾</div>
+                            <div class="emoji-wrapper"><div class="text-3xl mb-1">🌾</div></div>
                             <div class="text-xs font-bold">Oat Milk ($1.50)</div>
                         </div>
                         <div class="ingredient-card p-3 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
                              data-ingredient='{"name":"Light Cream", "type":"Milk", "price":0.75, "color":"#FFFDD0"}'>
-                            <div class="text-3xl mb-1">🍶</div>
+                            <div class="emoji-wrapper"><div class="text-3xl mb-1">🍶</div></div>
                             <div class="text-xs font-bold">Cream ($0.75)</div>
                         </div>
                     </div>
@@ -960,37 +2010,37 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div class="ingredient-card p-3 bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
                              data-ingredient='{"name":"Caramel Syrup", "type":"Flavor", "price":0.50, "color":"#D2691E"}'>
-                            <div class="text-3xl mb-1">🍯</div>
+                            <div class="emoji-wrapper"><div class="text-3xl mb-1">🍯</div></div>
                             <div class="text-xs font-bold">Caramel ($0.50)</div>
                         </div>
                         <div class="ingredient-card p-3 bg-gradient-to-br from-pink-100 to-pink-200 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
                              data-ingredient='{"name":"Strawberry Syrup", "type":"Flavor", "price":0.75, "color":"#FF69B4"}'>
-                            <div class="text-3xl mb-1">🍓</div>
+                            <div class="emoji-wrapper"><div class="text-3xl mb-1">🍓</div></div>
                             <div class="text-xs font-bold">Strawberry ($0.75)</div>
                         </div>
                         <div class="ingredient-card p-3 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
                              data-ingredient='{"name":"Vanilla Syrup", "type":"Flavor", "price":0.50, "color":"#F5F5DC"}'>
-                            <div class="text-3xl mb-1">🍦</div>
+                            <div class="emoji-wrapper"><div class="text-3xl mb-1">🍦</div></div>
                             <div class="text-xs font-bold">Vanilla ($0.50)</div>
                         </div>
                         <div class="ingredient-card p-3 bg-gradient-to-br from-amber-800 to-amber-900 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
                              data-ingredient='{"name":"Chocolate Syrup", "type":"Flavor", "price":0.75, "color":"#6B4423"}'>
-                            <div class="text-3xl mb-1" style="filter: brightness(0) invert(1);">🍫</div>
+                            <div class="emoji-wrapper"><div class="text-3xl mb-1">🍫</div></div>
                             <div class="text-xs font-bold text-white">Chocolate ($0.75)</div>
                         </div>
                         <div class="ingredient-card p-3 bg-gradient-to-br from-orange-200 to-orange-300 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
                              data-ingredient='{"name":"Pumpkin Spice Syrup", "type":"Flavor", "price":0.75, "color":"#FF8C00"}'>
-                            <div class="text-3xl mb-1">🎃</div>
+                            <div class="emoji-wrapper"><div class="text-3xl mb-1">🎃</div></div>
                             <div class="text-xs font-bold">Pumpkin ($0.75)</div>
                         </div>
                         <div class="ingredient-card p-3 bg-gradient-to-br from-green-100 to-green-200 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
                              data-ingredient='{"name":"Matcha Syrup", "type":"Flavor", "price":1.00, "color":"#98FB98"}'>
-                            <div class="text-3xl mb-1">🍵</div>
+                            <div class="emoji-wrapper"><div class="text-3xl mb-1">🍵</div></div>
                             <div class="text-xs font-bold">Matcha ($1.00)</div>
                         </div>
                         <div class="ingredient-card p-3 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
                              data-ingredient='{"name":"Lavender Syrup", "type":"Flavor", "price":0.75, "color":"#E6E6FA"}'>
-                            <div class="text-3xl mb-1">💜</div>
+                            <div class="emoji-wrapper"><div class="text-3xl mb-1">💜</div></div>
                             <div class="text-xs font-bold">Lavender ($0.75)</div>
                         </div>
                     </div>
@@ -1002,23 +2052,23 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div class="ingredient-card p-3 bg-gradient-to-br from-white to-gray-100 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
                              data-ingredient='{"name":"Whipped Cream", "type":"Topping", "price":0.25, "color":"#FFFFFF"}'>
-                            <div class="text-3xl mb-1">☁️</div>
+                            <div class="emoji-wrapper"><div class="text-3xl mb-1">☁️</div></div>
                             <div class="text-xs font-bold">Whipped ($0.25)</div>
                         </div>
                         <div class="ingredient-card p-3 bg-gradient-to-br from-pink-100 to-pink-200 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
                              data-ingredient='{"name":"Sprinkles", "type":"Topping", "price":0.50, "color":"transparent"}'>
-                            <div class="text-3xl mb-1">✨</div>
+                            <div class="emoji-wrapper"><div class="text-3xl mb-1">✨</div></div>
                             <div class="text-xs font-bold">Sprinkles ($0.50)</div>
                         </div>
                         <div class="ingredient-card p-3 bg-gradient-to-br from-amber-200 to-amber-300 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
                              data-ingredient='{"name":"Cinnamon", "type":"Topping", "price":0.25, "color":"#D2691E"}'>
-                            <div class="text-3xl mb-1">🌟</div>
+                            <div class="emoji-wrapper"><div class="text-3xl mb-1">🌟</div></div>
                             <div class="text-xs font-bold">Cinnamon ($0.25)</div>
                         </div>
-                        <div class="ingredient-card p-3 bg-gradient-to-br from-gray-700 to-gray-800 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
-                             data-ingredient='{"name":"Chocolate Chips", "type":"Topping", "price":0.50, "color":"#3D1F1D"}'>
-                            <div class="text-3xl mb-1" style="filter: brightness(0) invert(1);">🍫</div>
-                            <div class="text-xs font-bold text-white">Chips ($0.50)</div>
+                        <div class="ingredient-card p-3 bg-gradient-to-br from-amber-600 to-amber-700 rounded-xl shadow-md draggable-ingredient text-center" draggable="true" 
+                             data-ingredient='{"name":"Chocolate Chips", "type":"Topping", "price":0.50, "color":"#654321"}'>
+                            <div class="emoji-wrapper"><div class="text-3xl mb-1">🍫</div></div>
+                            <div class="text-xs font-bold text-white">Chocolate Chips ($0.50)</div>
                         </div>
                     </div>
                 </div>
@@ -1107,6 +2157,26 @@
                 <div class="text-2xl font-extrabold text-[#FF6B6B]">Total: $0.00</div>
             </div>
             
+            <!-- Multiple Drinks Section -->
+            <div class="mb-4 p-4 bg-gradient-to-br from-pink-50 to-red-50 rounded-xl border-2 border-pink-200">
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="font-bold text-gray-700">Drinks in Order</h3>
+                    <span class="text-sm text-gray-600" id="drink-count">0 / 4</span>
+                </div>
+                <div id="order-drinks-list" class="space-y-2 mb-3 min-h-[40px]">
+                    <p class="text-sm text-gray-500 text-center py-2">No drinks added yet. Build your drink above!</p>
+                </div>
+                <button id="add-drink-btn" class="w-full px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg font-bold hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed" 
+                        onclick="addDrinkToOrder()" disabled>
+                    ➕ Add Drink to Order
+                </button>
+            </div>
+            
+            <!-- Review Order Button -->
+            <button id="review-order-btn" class="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-3 px-6 rounded-2xl transition duration-300 shadow-lg text-lg mb-3 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                📋 Review Order
+            </button>
+            
             <!-- Submit Button -->
             <button id="submit-order-btn" class="w-full bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-bold py-4 px-6 rounded-2xl transition duration-300 shadow-lg text-xl">
                 Submit Order 🚀
@@ -1116,6 +2186,24 @@
                 <p id="status-text" class="text-sm font-medium text-gray-600">Status: Log in to track loyalty points!</p>
                 <p id="loyalty-points" class="text-2xl font-bold mt-2" style="color: #FF6B6B;">0 ⭐</p>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Review Order Modal -->
+<div id="review-order-modal" class="review-modal" style="display: none;">
+    <div class="review-modal-overlay" onclick="closeReviewModal()"></div>
+    <div class="review-modal-content">
+        <div class="review-modal-header">
+            <h2 class="review-modal-title">📋 Review Your Order</h2>
+            <button class="review-modal-close" onclick="closeReviewModal()">✕</button>
+        </div>
+        <div class="review-modal-body" id="review-order-body">
+            <!-- Content will be populated by JavaScript -->
+        </div>
+        <div class="review-modal-footer">
+            <button class="review-modal-cancel" onclick="closeReviewModal()">Cancel</button>
+            <button class="review-modal-confirm" onclick="confirmReviewOrder()">✅ Confirm Order</button>
         </div>
     </div>
 </div>

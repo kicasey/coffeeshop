@@ -3,20 +3,19 @@ using System.Collections.Generic;
 
 namespace CoffeeShopSimulation.Models
 {
-    // Blueprint for a single drag-and-drop item (e.g., Espresso Shot, Caramel Syrup).
+    // blueprint for a single drag-and-drop item 
     public class Ingredient
     {
-        // --- Private Fields (The actual data storage) ---
+        // private fields
         private int id;
         private string type;
         private string name;
         private decimal price;
-        private int drinkOrderId; // Foreign Key
+        private int drinkOrderId; // foreign key that links ingredient to order
 
-        // --- Constructors ---
         public Ingredient()
         {
-            // Default constructor required by Entity Framework Core
+            // default constructor required by entity framework core
             this.id = 0;
             this.type = string.Empty;
             this.name = string.Empty;
@@ -24,7 +23,7 @@ namespace CoffeeShopSimulation.Models
             this.drinkOrderId = 0;
         }
 
-        // Constructor for creating a new ingredient with specific details
+        // constructor for creating a new ingredient with specific details
         public Ingredient(string ingredientName, string ingredientType, decimal ingredientPrice)
         {
             this.name = ingredientName;
@@ -33,7 +32,7 @@ namespace CoffeeShopSimulation.Models
         }
 
 
-        // --- Public Properties (The controlled doorway to the private fields) ---
+        // getters and setters
 
         public int Id
         {
@@ -53,21 +52,21 @@ namespace CoffeeShopSimulation.Models
             set { name = value; }
         }
 
-        // The price for this specific ingredient (e.g., $1.00 for an extra shot)
+        // The price for this specific ingredient 
         public decimal Price
         {
             get { return price; }
             set { price = value; }
         }
 
-        // Foreign Key: ID of the parent DrinkOrder this ingredient belongs to.
+        // foreign key that links ingredient to order
         public int DrinkOrderId
         {
             get { return drinkOrderId; }
             set { drinkOrderId = value; }
         }
 
-        // Navigation Property: Allows C# code to easily access the parent Order.
+        // navigation property to let you see and retrieve the parent order
         public DrinkOrder DrinkOrder { get; set; } = null!;
     }
 }

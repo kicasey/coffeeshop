@@ -1,0 +1,150 @@
+@{
+    ViewData["Title"] = "Welcome";
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+    
+    body {
+        font-family: 'Nunito', sans-serif;
+        background: linear-gradient(135deg, #FFE5D9 0%, #FFCAD4 50%, #F4ACB7 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .landing-container {
+        max-width: 600px;
+        background: white;
+        border-radius: 40px;
+        padding: 4rem 3rem;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+        text-align: center;
+    }
+    
+    .logo-large {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 2rem;
+        filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));
+    }
+    
+    .logo-large svg {
+        width: 100%;
+        height: 100%;
+    }
+    
+    .welcome-title {
+        font-size: 3.5rem;
+        background: linear-gradient(135deg, #FF6B6B, #FF8E8E, #FFB6C1);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+        font-weight: 800;
+    }
+    
+    .welcome-subtitle {
+        font-size: 1.2rem;
+        color: #666;
+        margin-bottom: 3rem;
+    }
+    
+    .option-btn {
+        width: 100%;
+        padding: 20px 40px;
+        margin: 15px 0;
+        border: none;
+        border-radius: 25px;
+        font-size: 1.3rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: 'Nunito', sans-serif;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        text-decoration: none;
+        display: block;
+    }
+    
+    .option-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+    }
+    
+    .btn-login {
+        background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+        color: white;
+    }
+    
+    .btn-guest {
+        background: linear-gradient(135deg, #87CEEB, #98D8E8);
+        color: white;
+    }
+    
+    .btn-order {
+        background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+        color: white;
+    }
+    
+    .btn-rewards {
+        background: linear-gradient(135deg, #FFD700, #FFA500);
+        color: white;
+    }
+    
+    .points-display {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #FF6B6B;
+        margin: 1rem 0;
+    }
+</style>
+
+<div class="landing-container">
+    <div class="logo-large">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M30 20 L30 70 Q30 75 35 75 L65 75 Q70 75 70 70 L70 20 Z" fill="#8B4513" stroke="#6B3410" stroke-width="2"/>
+            <path d="M70 25 L75 25 L80 40 Q80 45 75 45 L70 45" fill="none" stroke="#6B3410" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="50" cy="50" r="15" fill="#4A2C2A"/>
+            <path d="M45 45 Q50 40 55 45" stroke="#8B7355" stroke-width="2" fill="none"/>
+        </svg>
+    </div>
+    
+    <h1 class="welcome-title">Katelyn C(offee)</h1>
+    
+    @if (ViewBag.IsLoggedIn == true)
+    {
+        <p class="welcome-subtitle">Welcome back! Ready to order? ☕</p>
+        <div class="points-display">⭐ @ViewBag.Points Points</div>
+        
+        <div class="mt-8">
+            <a asp-controller="Home" asp-action="Index" class="option-btn btn-order">
+                ☕ Continue to Order
+            </a>
+            <a asp-controller="Home" asp-action="Rewards" class="option-btn btn-rewards">
+                ⭐ Go to Rewards
+            </a>
+            <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Landing", "Home")" method="post" class="mt-4">
+                <button type="submit" class="option-btn btn-guest" style="background: linear-gradient(135deg, #999, #777);">
+                    🚪 Log Out
+                </button>
+            </form>
+        </div>
+    }
+    else
+    {
+        <p class="welcome-subtitle">Welcome to your personalized coffee experience! ☕</p>
+        
+        <div class="mt-8">
+            <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="/Home/Index" class="option-btn btn-login">
+                🔐 Log In
+            </a>
+            <a asp-controller="Home" asp-action="Index" class="option-btn btn-guest">
+                👤 Continue as Guest
+            </a>
+        </div>
+        
+        <p class="mt-6 text-sm text-gray-500">
+            <a asp-area="Identity" asp-page="/Account/Register" class="text-[#FF6B6B] hover:underline font-semibold">New here? Create an account!</a>
+        </p>
+    }
+</div>
