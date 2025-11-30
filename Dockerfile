@@ -19,8 +19,16 @@ WORKDIR /app
 # copy published app from build stage
 COPY --from=build /app/publish .
 
+# Create directory for database (if needed)
+RUN mkdir -p /app/data
+
 # Render expects the app to listen on port 10000
 ENV ASPNETCORE_URLS=http://+:10000
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+# Make sure the app directory is writable for SQLite
+RUN chmod -R 755 /app
+
 EXPOSE 10000
 
 ENTRYPOINT ["dotnet", "CoffeeShopSimulation.dll"]
