@@ -10,10 +10,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // 1. configuration
 
-// get the connection string from appsettings.json or environment variable
-// Use environment variable if available (for production), otherwise use appsettings.json
+// get the connection string from appsettings.json
+// Ignore DATABASE_URL if set (that was for PostgreSQL)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
-?? Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING")
 ?? "Data Source=./coffee_loyalty.db";
 
 // 2. add services
@@ -60,6 +59,7 @@ var app = builder.Build();
 app.UseForwardedHeaders();
 
 // Run database migrations on startup (both dev and production)
+// SQLite will create the database file automatically if it doesn't exist
 using (var scope = app.Services.CreateScope())
 {
     try
@@ -67,30 +67,20 @@ using (var scope = app.Services.CreateScope())
         var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
         
-        logger.LogInformation("Starting database migration...");
+        logger.LogInformation("Applying database migrations...");
         
-        // Check if database can be connected
-        if (db.Database.CanConnect())
-        {
-            logger.LogInformation("Database connection successful. Applying migrations...");
-            db.Database.Migrate();
-            logger.LogInformation("Database migrations applied successfully.");
-        }
-        else
-        {
-            logger.LogWarning("Cannot connect to database. Migrations will be skipped.");
-        }
+        // Migrate will create the database if it doesn't exist
+        db.Database.Migrate();
+        
+        logger.LogInformation("Database migrations completed successfully.");
     }
     catch (Exception ex)
     {
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while migrating the database. Error: {Error}", ex.Message);
+        logger.LogError(ex, "An error occurred while migrating the database.");
         
-        // Log the full exception details for debugging
-        if (ex.InnerException != null)
-        {
-            logger.LogError("Inner exception: {InnerError}", ex.InnerException.Message);
-        }
+        // Don't crash the app - log and continue
+        // The app might still work if the database already exists
     }
 }
 
