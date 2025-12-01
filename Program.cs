@@ -10,76 +10,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 // 1. configuration
 
-// get the connection string from environment variable first (for production), then appsettings.json
-// Prioritize DATABASE_URL for PostgreSQL on Render
-var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") // Render PostgreSQL provides this first
+// get the connection string from appsettings.json or environment variable
+// Use environment variable if available (for production), otherwise use appsettings.json
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
 ?? Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING")
-?? builder.Configuration.GetConnectionString("DefaultConnection") // Fall back to appsettings.json for local dev
-?? "Data Source=coffee_loyalty.db";
-
-// Determine which database provider to use
-// Check the connection string format first - if it looks like PostgreSQL, use PostgreSQL
-bool usePostgreSQL = !string.IsNullOrEmpty(connectionString) && (
-                         connectionString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) ||
-                         connectionString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase) ||
-                         connectionString.StartsWith("Host=", StringComparison.OrdinalIgnoreCase));
-
-// Log which database provider we're using (for debugging)
-Console.WriteLine($"=== Database Configuration ===");
-Console.WriteLine($"Using PostgreSQL: {usePostgreSQL}");
-Console.WriteLine($"Connection String Preview: {(string.IsNullOrEmpty(connectionString) ? "EMPTY" : connectionString.Substring(0, Math.Min(50, connectionString.Length)) + "...")}");
+?? "Data Source=./coffee_loyalty.db";
 
 // 2. add services
 
 // add database context for entity framework core
-// Automatically switch between SQLite (local) and PostgreSQL (production)
 builder.Services.AddDbContext<DatabaseContext>(options =>
-{
-    if (usePostgreSQL)
-    {
-        // PostgreSQL connection (Render)
-        // Handle Render's DATABASE_URL format: postgres://user:pass@host:port/dbname or postgresql://...
-        string postgresConnection = connectionString;
-        
-        if (connectionString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) ||
-            connectionString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
-        {
-            try
-            {
-                // Parse Render's DATABASE_URL format: postgresql://user:pass@host:port/dbname
-                var uri = new Uri(connectionString);
-                
-                // Extract user info (username:password)
-                var userInfoParts = uri.UserInfo.Split(new[] { ':' }, 2);
-                if (userInfoParts.Length == 2)
-                {
-                    var username = Uri.UnescapeDataString(userInfoParts[0]);
-                    var password = Uri.UnescapeDataString(userInfoParts[1]);
-                    var database = uri.LocalPath.TrimStart('/');
-                    var port = uri.Port > 0 ? uri.Port : 5432;
-                    
-                    postgresConnection = $"Host={uri.Host};Port={port};Database={database};Username={username};Password={password};SSL Mode=Require;Trust Server Certificate=true;";
-                    Console.WriteLine($"Parsed PostgreSQL connection: Host={uri.Host}, Port={port}, Database={database}");
-                }
-            }
-            catch (Exception ex)
-            {
-                // Log error but continue - the connection string might already be in Npgsql format
-                Console.WriteLine($"ERROR: Failed to parse PostgreSQL connection string: {ex.Message}");
-                Console.WriteLine($"Connection string: {connectionString?.Substring(0, Math.Min(100, connectionString?.Length ?? 0))}");
-            }
-        }
-        
-        Console.WriteLine("Configuring database context to use PostgreSQL (Npgsql)");
-        options.UseNpgsql(postgresConnection);
-    }
-    else
-    {
-        // SQLite connection (local development)
-        Console.WriteLine("Configuring database context to use SQLite");
-        options.UseSqlite(connectionString);
-    }
-});
+    options.UseSqlite(connectionString));
 
 // configure identity system (login/register/user management)
 builder.Services.AddDefaultIdentity<LoyaltyUser>(options => options.SignIn.RequireConfirmedAccount = false)

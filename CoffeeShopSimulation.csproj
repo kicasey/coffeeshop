@@ -13,11 +13,8 @@
     <!-- Entity Framework Core for Data Management -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.10" />
     
-    <!-- SQLite Provider for the Database File (Local Development) -->
+    <!-- SQLite Provider for the Database File -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.10" />
-    
-    <!-- PostgreSQL Provider for Production (Render) -->
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.2" />
 
     <!-- ASP.NET Core Identity for Login/Registration -->
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.10" />
