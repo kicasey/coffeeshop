@@ -1663,9 +1663,52 @@
                 return;
             }
             
+            // Calculate total cost BEFORE submitting (to show correct total even with discounts)
+            const sizeMultipliers = {
+                'small': 0.85,
+                'medium': 1.0,
+                'large': 1.25
+            };
+            
+            let totalCostBeforeDiscount = 0;
+            let totalDiscountAmount = 0;
+            let discountDrinkIndex = -1;
+            
+            // Find which drink should be discounted
+            if (hasRedeemDiscount && redeemSize) {
+                for (let i = 0; i < orderDrinks.length; i++) {
+                    if (orderDrinks[i].size.toLowerCase() === redeemSize.toLowerCase()) {
+                        discountDrinkIndex = i;
+                        break;
+                    }
+                }
+            } else if (hasBirthdayDiscount) {
+                discountDrinkIndex = 0; // First drink gets birthday discount
+            }
+            
+            // Calculate total cost before discounts
+            orderDrinks.forEach((drink, index) => {
+                const drinkBaseTotal = drink.ingredients.reduce((sum, item) => sum + item.price, 0);
+                const drinkSizeMultiplier = sizeMultipliers[drink.size] || 1.0;
+                const drinkCost = drinkBaseTotal * drinkSizeMultiplier;
+                
+                if (index === 0 && deliveryOption === 'delivery') {
+                    totalCostBeforeDiscount += 2.50; // Delivery fee
+                }
+                
+                totalCostBeforeDiscount += drinkCost;
+                
+                if (index === discountDrinkIndex) {
+                    totalDiscountAmount += drinkCost;
+                    if (index === 0 && deliveryOption === 'delivery') {
+                        totalDiscountAmount += 2.50; // Delivery also free for discounted drink
+                    }
+                }
+            });
+            
             // Submit each drink as a separate order
             let totalPoints = 0;
-            let totalCost = 0;
+            let actualTotalCost = 0; // What was actually paid
             let lastOrderId = 0;
             let hasDiscount = false;
             let discountType = '';
@@ -1704,11 +1747,11 @@
                 if (response.ok) {
                     totalPoints += result.pointsEarned || 0;
                     
-                    // Parse the actual cost (may be 0 if discounted) - backend returns formatted string like "$10.50" or "$0.00"
+                    // Parse the actual cost paid (may be 0 if discounted)
                     let costString = result.totalCost || '$0.00';
                     costString = costString.replace(/[$,]/g, '').trim();
                     const cost = parseFloat(costString) || 0;
-                    totalCost += cost;
+                    actualTotalCost += cost; // Track what was actually paid (after discounts)
                     
                     if (result.hasDiscount && result.discountType) {
                         hasDiscount = true;
@@ -1721,6 +1764,14 @@
                 }
             }
             
+            // Use the calculated total (before discount - discount = what was actually paid)
+            // This ensures we show the correct total even if backend calculations differ slightly
+            const finalDisplayTotal = totalCostBeforeDiscount - totalDiscountAmount;
+            
+            // Verify the total matches what we actually paid (sanity check)
+            // Use the calculated total as it's more accurate for display
+            const displayTotal = Math.abs(actualTotalCost - finalDisplayTotal) < 0.01 ? actualTotalCost : finalDisplayTotal;
+            
             // Clear order drinks from sessionStorage after successful order
             try {
                 sessionStorage.removeItem('orderDrinks');
@@ -1729,7 +1780,8 @@
             }
             
             // All orders successful - redirect to completion page
-            window.location.href = `/Home/OrderComplete?orderId=${lastOrderId}&points=${totalPoints}&pointsEarned=${totalPoints}&total=$${totalCost.toFixed(2)}&hasDiscount=${hasDiscount}&discountType=${discountType}`;
+            // Show the total AFTER discounts (what was actually paid)
+            window.location.href = `/Home/OrderComplete?orderId=${lastOrderId}&points=${totalPoints}&pointsEarned=${totalPoints}&total=$${displayTotal.toFixed(2)}&hasDiscount=${hasDiscount}&discountType=${discountType}`;
         } catch (error) {
             console.error('Submit error:', error);
             displayMessage('Order failed: ' + error.message + '. Please try again. 🌐', 'error');

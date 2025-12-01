@@ -109,6 +109,9 @@ namespace CoffeeShopSimulation.Controllers
                 
                 // Total cost before discounts
                 decimal totalCost = subtotal + deliveryFee;
+                decimal originalCost = totalCost; // Store original cost before discounts
+                decimal discountAmount = 0;
+                string? discountType = null;
 
                 // 3. Create a new DrinkOrder transaction
                 DrinkOrder newOrder = null;
@@ -141,10 +144,6 @@ namespace CoffeeShopSimulation.Controllers
                             return BadRequest(new { message = $"You can only redeem a {redeemSize} size drink. Please select the correct size." });
                         }
                     }
-                    
-                    decimal originalCost = totalCost;
-                    decimal discountAmount = 0;
-                    string? discountType = null;
                     
                     // Check if it's the user's birthday AND they haven't used it today (only if no redemption)
                     isBirthday = !hasRedemption && user.IsBirthdayToday() && !user.HasUsedBirthdayDiscountToday();
@@ -259,7 +258,8 @@ namespace CoffeeShopSimulation.Controllers
                     return Ok(new 
                     { 
                         message = message,
-                        totalCost = totalCost.ToString("C"),
+                        totalCost = totalCost.ToString("C"), // Cost AFTER discount (what was actually paid)
+                        originalCost = originalCost.ToString("C"), // Cost BEFORE discount (for display)
                         newPoints = totalPointsAfterOrder, // Total points after order
                         pointsEarned = pointsEarnedThisOrder, // Points earned from THIS order only
                         moneySpent = moneySpentDecimal.ToString("C"),
@@ -267,7 +267,8 @@ namespace CoffeeShopSimulation.Controllers
                         isLoggedIn = true,
                         isBirthday = isBirthday && newOrder.DiscountType == "birthday",
                         hasDiscount = hasDiscount,
-                        discountType = newOrder.DiscountType
+                        discountType = newOrder.DiscountType,
+                        discountAmount = discountAmount.ToString("C") // Amount discounted
                     });
                 }
                 else

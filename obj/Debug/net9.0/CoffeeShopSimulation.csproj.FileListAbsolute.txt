@@ -409,3 +409,5 @@
 /Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/obj/Debug/net9.0/CoffeeShopSimulation.pdb
 /Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/obj/Debug/net9.0/CoffeeShopSimulation.genruntimeconfig.cache
 /Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/obj/Debug/net9.0/ref/CoffeeShopSimulation.dll
+/Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/bin/Debug/net9.0/Npgsql.dll
+/Users/katelyncasey/Desktop/Code/MIS221/PARIVEDA/CoffeeShopSimulation/bin/Debug/net9.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll

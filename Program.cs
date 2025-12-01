@@ -13,14 +13,42 @@ var builder = WebApplication.CreateBuilder(args);
 // get the connection string from appsettings.json or environment variable
 // Use environment variable if available (for production), otherwise use appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+?? Environment.GetEnvironmentVariable("DATABASE_URL") // Render PostgreSQL provides this
 ?? Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING")
 ?? "Data Source=coffee_loyalty.db";
+
+// Determine which database provider to use
+// If DATABASE_URL is set (PostgreSQL from Render), use PostgreSQL
+// Otherwise, use SQLite for local development
+bool usePostgreSQL = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DATABASE_URL")) ||
+                     (!string.IsNullOrEmpty(connectionString) && connectionString.StartsWith("Host=", StringComparison.OrdinalIgnoreCase));
 
 // 2. add services
 
 // add database context for entity framework core
+// Automatically switch between SQLite (local) and PostgreSQL (production)
 builder.Services.AddDbContext<DatabaseContext>(options =>
-    options.UseSqlite(connectionString));
+{
+    if (usePostgreSQL)
+    {
+        // PostgreSQL connection (Render)
+        // Handle Render's DATABASE_URL format: postgres://user:pass@host:port/dbname
+        string postgresConnection = connectionString;
+        if (connectionString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase))
+        {
+            // Parse Render's DATABASE_URL format
+            var uri = new Uri(connectionString);
+            var userInfo = uri.UserInfo.Split(':');
+            postgresConnection = $"Host={uri.Host};Port={uri.Port};Database={uri.LocalPath.TrimStart('/')};Username={userInfo[0]};Password={Uri.UnescapeDataString(userInfo[1])};SSL Mode=Require;Trust Server Certificate=true";
+        }
+        options.UseNpgsql(postgresConnection);
+    }
+    else
+    {
+        // SQLite connection (local development)
+        options.UseSqlite(connectionString);
+    }
+});
 
 // configure identity system (login/register/user management)
 builder.Services.AddDefaultIdentity<LoyaltyUser>(options => options.SignIn.RequireConfirmedAccount = false)
