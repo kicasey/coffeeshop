@@ -21,7 +21,10 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 // If DATABASE_URL is set (PostgreSQL from Render), use PostgreSQL
 // Otherwise, use SQLite for local development
 bool usePostgreSQL = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DATABASE_URL")) ||
-                     (!string.IsNullOrEmpty(connectionString) && connectionString.StartsWith("Host=", StringComparison.OrdinalIgnoreCase));
+                     (!string.IsNullOrEmpty(connectionString) && (
+                         connectionString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) ||
+                         connectionString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase) ||
+                         connectionString.StartsWith("Host=", StringComparison.OrdinalIgnoreCase)));
 
 // 2. add services
 
@@ -32,15 +35,36 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
     if (usePostgreSQL)
     {
         // PostgreSQL connection (Render)
-        // Handle Render's DATABASE_URL format: postgres://user:pass@host:port/dbname
+        // Handle Render's DATABASE_URL format: postgres://user:pass@host:port/dbname or postgresql://...
         string postgresConnection = connectionString;
-        if (connectionString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase))
+        
+        if (connectionString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) ||
+            connectionString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
         {
-            // Parse Render's DATABASE_URL format
-            var uri = new Uri(connectionString);
-            var userInfo = uri.UserInfo.Split(':');
-            postgresConnection = $"Host={uri.Host};Port={uri.Port};Database={uri.LocalPath.TrimStart('/')};Username={userInfo[0]};Password={Uri.UnescapeDataString(userInfo[1])};SSL Mode=Require;Trust Server Certificate=true";
+            try
+            {
+                // Parse Render's DATABASE_URL format: postgresql://user:pass@host:port/dbname
+                var uri = new Uri(connectionString);
+                
+                // Extract user info (username:password)
+                var userInfoParts = uri.UserInfo.Split(new[] { ':' }, 2);
+                if (userInfoParts.Length == 2)
+                {
+                    var username = Uri.UnescapeDataString(userInfoParts[0]);
+                    var password = Uri.UnescapeDataString(userInfoParts[1]);
+                    var database = uri.LocalPath.TrimStart('/');
+                    var port = uri.Port > 0 ? uri.Port : 5432;
+                    
+                    postgresConnection = $"Host={uri.Host};Port={port};Database={database};Username={username};Password={password};SSL Mode=Require;Trust Server Certificate=true;";
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error but continue - the connection string might already be in Npgsql format
+                Console.WriteLine($"Warning: Failed to parse PostgreSQL connection string: {ex.Message}");
+            }
         }
+        
         options.UseNpgsql(postgresConnection);
     }
     else
@@ -93,12 +117,32 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-        db.Database.Migrate();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        
+        logger.LogInformation("Starting database migration...");
+        
+        // Check if database can be connected
+        if (db.Database.CanConnect())
+        {
+            logger.LogInformation("Database connection successful. Applying migrations...");
+            db.Database.Migrate();
+            logger.LogInformation("Database migrations applied successfully.");
+        }
+        else
+        {
+            logger.LogWarning("Cannot connect to database. Migrations will be skipped.");
+        }
     }
     catch (Exception ex)
     {
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while migrating the database.");
+        logger.LogError(ex, "An error occurred while migrating the database. Error: {Error}", ex.Message);
+        
+        // Log the full exception details for debugging
+        if (ex.InnerException != null)
+        {
+            logger.LogError("Inner exception: {InnerError}", ex.InnerException.Message);
+        }
     }
 }
 
