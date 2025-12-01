@@ -846,16 +846,39 @@
         }
         
         // Set size if redemption discount and disable other sizes
+        // ONLY if redemption hasn't been used yet (no drink with redeemed size in orderDrinks)
         if (hasRedeemDiscount && redeemSize) {
-            document.querySelectorAll('.size-option').forEach(opt => {
-                if (opt.dataset.size === redeemSize) {
-                    document.querySelectorAll('.size-option').forEach(o => o.classList.remove('selected'));
-                    opt.classList.add('selected');
-                    drinkSize = redeemSize;
-                } else {
-                    // Disable other sizes when redeemed
-                    opt.classList.add('disabled');
+            // Check if redemption has already been used
+            let redemptionUsed = false;
+            for (let i = 0; i < orderDrinks.length; i++) {
+                if (orderDrinks[i].size.toLowerCase() === redeemSize.toLowerCase()) {
+                    redemptionUsed = true;
+                    break;
                 }
+            }
+            
+            // Only lock size if redemption hasn't been used yet
+            if (!redemptionUsed) {
+                document.querySelectorAll('.size-option').forEach(opt => {
+                    if (opt.dataset.size === redeemSize) {
+                        document.querySelectorAll('.size-option').forEach(o => o.classList.remove('selected'));
+                        opt.classList.add('selected');
+                        drinkSize = redeemSize;
+                    } else {
+                        // Disable other sizes when redeemed
+                        opt.classList.add('disabled');
+                    }
+                });
+            } else {
+                // Redemption already used - enable all sizes
+                document.querySelectorAll('.size-option').forEach(opt => {
+                    opt.classList.remove('disabled');
+                });
+            }
+        } else {
+            // No redemption - enable all sizes
+            document.querySelectorAll('.size-option').forEach(opt => {
+                opt.classList.remove('disabled');
             });
         }
     }
@@ -920,11 +943,24 @@
     function setupSizeOptions() {
         document.querySelectorAll('.size-option').forEach(option => {
             option.addEventListener('click', function() {
-                // Don't allow size change if redemption discount is active
-                if (hasRedeemDiscount && this.dataset.size !== redeemSize) {
-                    return;
+                // Don't allow size change if redemption discount is active AND redemption hasn't been used yet
+                if (hasRedeemDiscount && redeemSize) {
+                    // Check if redemption has already been used
+                    let redemptionUsed = false;
+                    for (let i = 0; i < orderDrinks.length; i++) {
+                        if (orderDrinks[i].size.toLowerCase() === redeemSize.toLowerCase()) {
+                            redemptionUsed = true;
+                            break;
+                        }
+                    }
+                    
+                    // Only prevent size change if redemption not used yet
+                    if (!redemptionUsed && this.dataset.size !== redeemSize) {
+                        return;
+                    }
                 }
-                document.querySelectorAll('.size-option').forEach(o => o.classList.remove('selected'));
+                
+                document.querySelectorAll('.size-option').forEach(o => o.classList.remove('selected', 'disabled'));
                 this.classList.add('selected');
                 drinkSize = this.dataset.size;
                 updateTotalCost();
@@ -1493,6 +1529,10 @@
         updateRecipeDisplay();
         updateTotalCost();
         updateOrderDrinksList();
+        
+        // Re-check discounts - if redemption was used, unlock sizes for next drink
+        checkDiscounts();
+        
         updateAddDrinkButton();
         displayMessage(`Drink ${orderDrinks.length} added to order!`, 'success');
     };
@@ -1608,7 +1648,7 @@
         const deliveryFee = deliveryOption === 'delivery' ? 2.50 : 0;
         const finalTotal = totalAllDrinks + deliveryFee;
         
-        const sizePrice = drinkSize === 'small' ? 'Small (+$0)' : 
+        const sizePrice = drinkSize === 'small' ? 'Small (-15%)' : 
                          drinkSize === 'medium' ? 'Medium (+$0)' : 
                          'Large (+25%)';
         
@@ -1850,12 +1890,18 @@
             const discountTypeText = (index === redemptionIndex && hasRedeemDiscount) ? '⭐ Redeemed' : 
                                      (index === 0 && hasBirthdayDiscount) ? '🎂 Birthday' : '';
             
+            // Calculate size multiplier display
+            const sizeMultiplier = drink.size === 'small' ? 0.85 : drink.size === 'large' ? 1.25 : 1.0;
+            const sizeDisplay = drink.size === 'small' ? 'Small (-15%)' : 
+                               drink.size === 'medium' ? 'Medium (+0%)' : 
+                               'Large (+25%)';
+            
             html += `
                 <div class="review-drink-item">
                     <div class="review-drink-header">
                         <div>
                             <div class="review-drink-title">Drink ${index + 1}: ${drink.size.charAt(0).toUpperCase() + drink.size.slice(1)} ${drink.isIced ? '🧊 Iced' : '🔥 Hot'}</div>
-                            <div class="review-drink-details">${drink.isMixed ? '🔀 Mixed' : 'Layered'} ${discountTypeText ? `| ${discountTypeText}` : ''}</div>
+                            <div class="review-drink-details">${drink.isMixed ? '🔀 Mixed' : 'Layered'} | Size: ${sizeDisplay} ${discountTypeText ? `| ${discountTypeText}` : ''}</div>
                         </div>
                         <div class="review-drink-cost">
                             ${isDiscounted ? `<span style="text-decoration: line-through; opacity: 0.5;">$${drinkCost.toFixed(2)}</span><br><span style="color: #10B981;">FREE</span>` : `$${drinkCost.toFixed(2)}`}
